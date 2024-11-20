@@ -1,4 +1,4 @@
-﻿# Project Overview: Water Quality Monitoring Application**
+﻿# Project Overview: Water Quality Monitoring Application
 
 # Objective: Develop an application to help users query, analyze, and export water quality data for the UK/EU regions.
 
