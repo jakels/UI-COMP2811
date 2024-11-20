@@ -1,6 +1,6 @@
 ﻿# Project Overview: Water Quality Monitoring Application**
 
-# Objective**: Develop an application to help users query, analyze, and export water quality data for the UK/EU regions.
+# Objective: Develop an application to help users query, analyze, and export water quality data for the UK/EU regions.
 
 # Target Audience**: Water companies, government agencies, the World Health Organization (WHO), environmental protection organizations, etc.
 
