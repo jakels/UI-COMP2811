@@ -2,7 +2,7 @@
 
 # Objective: Develop an application to help users query, analyze, and export water quality data for the UK/EU regions.
 
-# Target Audience**: Water companies, government agencies, the World Health Organization (WHO), environmental protection organizations, etc.
+# Target Audience: Water companies, government agencies, the World Health Organization (WHO), environmental protection organizations, etc.
 
 ## Core Features:
 1.**Data Query**: Allow users to search for specific water quality information based on time, location, and pollution levels.
