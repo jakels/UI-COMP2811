@@ -32,6 +32,10 @@ public:
 
 // Function to load the CSV file into a vector of WaterQualitySample objects
 std::vector<WaterQualitySample> DB_GetAllEntries(const std::string& filePath);
+std::vector<WaterQualitySample> DB_GetEntriesByLocation(const std::string& filePath, const std::string& locationName);
+std::vector<WaterQualitySample> DB_GetEntriesByChemical(const std::string& filePath, const std::string& chemical);
+std::vector<WaterQualitySample> DB_GetEntriesByChemicalByLocation(const std::string& filePath, const std::string& chemical, const std::string& location);
+
 
 // Function to debug the csv
 int DebugData();
