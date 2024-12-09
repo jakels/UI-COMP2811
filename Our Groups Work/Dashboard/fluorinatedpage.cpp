@@ -2,6 +2,13 @@
 #include <QGridLayout>
 #include <QFrame>
 #include <QDebug>
+#include <QtCharts/QChartView>
+#include <QtCharts/QLineSeries>
+#include <QtCharts/QDateTimeAxis>
+#include <QtCharts/QValueAxis>
+#include <QDateTime>
+
+QT_CHARTS_USE_NAMESPACE
 
 FluorinatedPage::FluorinatedPage(QWidget *parent)
     : QMainWindow(parent),
@@ -193,8 +200,8 @@ void FluorinatedPage::updateComplianceStatus()
 QWidget *FluorinatedPage::createSummaryCard(const QString &title, const QString &color)
 {
     QFrame *card = new QFrame();
-    card->setStyleSheet(QString("background-color: %1; border-radius: 10px; padding: 20px;").arg(color));
-    card->setFixedSize(300, 150);
+    card->setStyleSheet(QString("background-color: %1; border-radius: 50px; padding: 50px;").arg(color));
+    card->setFixedSize(400, 500);
 
     QVBoxLayout *cardContent = new QVBoxLayout(card);
     QLabel *titleLabel = new QLabel(title);
@@ -206,23 +213,56 @@ QWidget *FluorinatedPage::createSummaryCard(const QString &title, const QString 
     return card;
 }
 
-// Create visualization section
 QWidget *FluorinatedPage::createVisualizationSection()
 {
+    // Create the visualization widget
     QWidget *visualizationWidget = new QWidget();
     visualizationWidget->setStyleSheet("background-color: #e0e0e0; border: 1px solid #ccc; border-radius: 10px;");
     visualizationWidget->setMinimumSize(800, 500);
 
-    QLabel *placeholder = new QLabel("Visualization Area (Map/Time-Series)");
-    placeholder->setAlignment(Qt::AlignCenter);
-    placeholder->setStyleSheet("font-size: 18px; color: #555;");
+    // Create a line series for pollutant levels
+    QLineSeries *series = new QLineSeries();
+    series->setName("Fluorinated Pollutant Levels");
 
+    // Example data for fluorinated pollutants (time, pollutant level)
+    series->append(QDateTime::fromString("2024-12-01T08:00:00", Qt::ISODate).toMSecsSinceEpoch(), 45.2);
+    series->append(QDateTime::fromString("2024-12-01T12:00:00", Qt::ISODate).toMSecsSinceEpoch(), 47.8);
+    series->append(QDateTime::fromString("2024-12-01T16:00:00", Qt::ISODate).toMSecsSinceEpoch(), 44.0);
+    series->append(QDateTime::fromString("2024-12-01T20:00:00", Qt::ISODate).toMSecsSinceEpoch(), 49.3);
+    series->append(QDateTime::fromString("2024-12-02T00:00:00", Qt::ISODate).toMSecsSinceEpoch(), 50.7);
+
+    // Create the chart and configure it
+    QChart *chart = new QChart();
+    chart->addSeries(series);
+    chart->setTitle("Fluorinated Pollutants Levels Over Time");
+    chart->legend()->setAlignment(Qt::AlignBottom);
+
+    // Configure the X-axis for time
+    QDateTimeAxis *axisX = new QDateTimeAxis;
+    axisX->setFormat("yyyy-MM-dd HH:mm");
+    axisX->setTitleText("Time");
+    axisX->setTickCount(10);
+    chart->addAxis(axisX, Qt::AlignBottom);
+    series->attachAxis(axisX);
+
+    // Configure the Y-axis for pollutant levels
+    QValueAxis *axisY = new QValueAxis;
+    axisY->setTitleText("Pollutant Levels (ppm)");
+    axisY->setLabelFormat("%.1f");
+    axisY->setRange(40.0, 60.0); // Example range, can be adjusted based on actual data
+    chart->addAxis(axisY, Qt::AlignLeft);
+    series->attachAxis(axisY);
+
+    // Create the chart view
+    QChartView *chartView = new QChartView(chart);
+
+
+    // Arrange the chart view in the layout
     QVBoxLayout *layout = new QVBoxLayout(visualizationWidget);
-    layout->addWidget(placeholder);
+    layout->addWidget(chartView);
 
     return visualizationWidget;
 }
-
 // Create summary section
 QWidget *FluorinatedPage::createSummarySection()
 {
