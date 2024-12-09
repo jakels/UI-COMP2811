@@ -1,10 +1,14 @@
 cmake_minimum_required(VERSION 3.16)
+
+# Define the project with both C and C++ languages
 project(dash VERSION 0.1 LANGUAGES C CXX)
 
+# Enable Qt's automatic features
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
+# Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -13,15 +17,16 @@ if(WIN32)
     # Windows Qt installation path
     set(CMAKE_PREFIX_PATH "C:/Qt/6.8.1/mingw_64/lib/cmake")
 elseif(APPLE)
-    # macOS Qt installation path
-    # Adjust this path to match your local Qt installation.
+    # macOS Qt installation path - adjust as necessary
     set(CMAKE_PREFIX_PATH "/Users/<username>/Qt/6.8.1/clang_64/lib/cmake")
 endif()
 
-# Find Qt packages
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+# Find required Qt packages
+# Note: We now include the Charts component as well
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Charts)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Charts)
 
+# Define all project source files, including new chart-related classes and sqlite3.c
 set(PROJECT_SOURCES
         main.cpp
         mainwindow.cpp
@@ -31,8 +36,12 @@ set(PROJECT_SOURCES
         DatasetInterface.h
         csv.hpp
         sqlite3.c
+        datavisualizationpage.cpp
+        pollutantoverview.cpp
+        fluorinatedpage.cpp
 )
 
+# Define the executable for Qt 6 or lower
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(dash
             MANUAL_FINALIZATION
@@ -46,8 +55,10 @@ else()
     endif()
 endif()
 
-target_link_libraries(dash PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+# Link Qt Widgets and Charts libraries
+target_link_libraries(dash PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Charts)
 
+# Set bundle properties for macOS and other platforms
 if(${QT_VERSION} VERSION_LESS 6.1.0)
     set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.dash)
 endif()
@@ -60,14 +71,15 @@ set_target_properties(dash PROPERTIES
         WIN32_EXECUTABLE TRUE
 )
 
+# Specify installation directories
 include(GNUInstallDirs)
-
 install(TARGETS dash
         BUNDLE DESTINATION .
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
+# Finalize the executable if using Qt 6
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(dash)
 endif()

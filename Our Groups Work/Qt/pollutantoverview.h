@@ -2,7 +2,7 @@
 #define POLLUTANTOVERVIEW_H
 
 #include <QWidget>
-#include <QChartView>
+#include <QtCharts/QChartView>
 #include <QTableWidget>
 #include <QLineEdit>
 
