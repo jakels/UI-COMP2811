@@ -1,12 +1,21 @@
 # ninja log v5
 8	1298	7552109749849307	dash_autogen/timestamp	d7e361326e0b9d3d
-843	2781	7551976166921632	CMakeFiles/dash.dir/dash_autogen/mocs_compilation.cpp.obj	e7e2e9a86a684580
 8	1298	7552109749849307	dash_autogen/mocs_compilation.cpp	d7e361326e0b9d3d
-8	1298	7552109749849307	C:/Users/Jake/Documents/Repositories/UI-COMP2811/Our Groups Work/Dashboard/cmake-build-debug/dash_autogen/mocs_compilation.cpp	d7e361326e0b9d3d
+843	2781	7551976166921632	CMakeFiles/dash.dir/dash_autogen/mocs_compilation.cpp.obj	e7e2e9a86a684580
 8	1298	7552109749849307	C:/Users/Jake/Documents/Repositories/UI-COMP2811/Our Groups Work/Dashboard/cmake-build-debug/dash_autogen/timestamp	d7e361326e0b9d3d
-5702	6811	7552109804955934	dash.exe	a6193ac82550d100
+8	1298	7552109749849307	C:/Users/Jake/Documents/Repositories/UI-COMP2811/Our Groups Work/Dashboard/cmake-build-debug/dash_autogen/mocs_compilation.cpp	d7e361326e0b9d3d
 1323	3161	7552109768490132	CMakeFiles/dash.dir/mainwindow.cpp.obj	7ba97c39f49e9f30
+5702	6811	7552109804955934	dash.exe	a6193ac82550d100
 1317	5702	7552109793884388	CMakeFiles/dash.dir/main.cpp.obj	9d4ba869913ad236
 1205	4906	7552022389561399	CMakeFiles/dash.dir/DatasetInterface.cpp.obj	a305fe314429b475
-24	1748	7554608856581969	build.ninja	f8047329b1406991
+24	1748	7554634566830243	build.ninja	f8047329b1406991
 267	5349	7552104953579866	CMakeFiles/dash.dir/sqlite3.c.obj	61b7d80c4b436e02
+10	2478	7554634566830243	build.ninja	f8047329b1406991
+7	583	7554634574314267	dash_autogen/timestamp	d7e361326e0b9d3d
+7	583	7554634574314267	dash_autogen/mocs_compilation.cpp	d7e361326e0b9d3d
+7	583	7554634574314267	C:/Users/Jake/Documents/Repositories/UI-COMP2811/Our Groups Work/Dashboard/cmake-build-debug/dash_autogen/timestamp	d7e361326e0b9d3d
+7	583	7554634574314267	C:/Users/Jake/Documents/Repositories/UI-COMP2811/Our Groups Work/Dashboard/cmake-build-debug/dash_autogen/mocs_compilation.cpp	d7e361326e0b9d3d
+612	2495	7554634593425210	CMakeFiles/dash.dir/mainwindow.cpp.obj	7ba97c39f49e9f30
+604	2657	7554634595040175	CMakeFiles/dash.dir/main.cpp.obj	9d4ba869913ad236
+608	4343	7554634611823214	CMakeFiles/dash.dir/DatasetInterface.cpp.obj	a305fe314429b475
+4343	5585	7554634624266127	dash.exe	a6193ac82550d100
