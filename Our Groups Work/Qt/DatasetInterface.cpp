@@ -163,25 +163,7 @@ std::vector<WaterQualitySample> DB_GetEntriesByChemicalAndLocation(const std::st
     // Iterate through the rows of the CSV
     for (int i = 0; i < cachedDatasetSize; i++)
     {
-        //std::cout << row << std::endl;
-        WaterQualitySample sample;
-        sample.id = row["@id"].get<>();
-        sample.samplingPoint = row["sample.samplingPoint"].get<>();
-        sample.samplingPointNotation = row["sample.samplingPoint.notation"].get<>();
-        sample.samplingPointLabel = row["sample.samplingPoint.label"].get<>();
-        sample.sampleDateTime = row["sample.sampleDateTime"].get<>();
-        sample.determinandLabel = row["determinand.label"].get<>();
-        sample.determinandDefinition = row["determinand.definition"].get<>();
-        sample.determinandNotation = row["determinand.notation"].get<>();
-        sample.resultQualifierNotation = row["resultQualifier.notation"].get<>();
-        sample.result = row["result"].get<>();
-        sample.codedResultInterpretation = row["codedResultInterpretation.interpretation"].get<>();
-        sample.determinandUnitLabel = row["determinand.unit.label"].get<>();
-        sample.sampledMaterialTypeLabel = row["sample.sampledMaterialType.label"].get<>();
-        sample.isComplianceSample = row["sample.isComplianceSample"].get<>();
-        sample.purposeLabel = row["sample.purpose.label"].get<>();
-        sample.samplingPointEasting = row["sample.samplingPoint.easting"].get<>();
-        sample.samplingPointNorthing = row["sample.samplingPoint.northing"].get<>();
+        WaterQualitySample sample = cachedDataset[i];
 
         if(sample.determinandLabel != chemical || sample.samplingPointLabel != location)
         {
