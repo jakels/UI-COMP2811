@@ -10,20 +10,18 @@
 #include <QToolTip>
 #include "DatasetInterface.h"
 
-
-//QT_CHARTS_USE_NAMESPACE
-
 FluorinatedPage::FluorinatedPage(QWidget *parent)
     : QMainWindow(parent),
-    summaryCardLayout(new QVBoxLayout),
-    filterDropdownType(new QComboBox()),
-    filterDropdownLocation(new QComboBox()),
-    filterDropdownCompliance(new QComboBox())
+      summaryCardLayout(new QVBoxLayout),
+      filterDropdownType(new QComboBox()),
+      filterDropdownLocation(new QComboBox()),
+      filterDropdownCompliance(new QComboBox())
 {
-    std::vector<WaterQualitySample> samples = DB_GetEntriesByChemical("", "");
-    for (int i = 0; i < 1000; i++){
-        WaterQualitySample current = samples[i];
-    }
+    /*std::vector<WaterQualitySample> samples = DB_GetEntriesByChemical("", "");
+    for (int i = 0; i < 1000; i++) {
+        WaterQualitySample current = samples[i];*/
+
+
     QWidget *centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
 
@@ -31,7 +29,6 @@ FluorinatedPage::FluorinatedPage(QWidget *parent)
     QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
     mainLayout->setContentsMargins(10, 10, 10, 10);
     mainLayout->setSpacing(10);
-
 
     // Filters layout
     QHBoxLayout *filterLayout = new QHBoxLayout();
@@ -75,7 +72,7 @@ QWidget *FluorinatedPage::createTypeFilterSection()
         "QComboBox QAbstractItemView {"
         "  color: black; background-color: white; selection-background-color: #3498db; selection-color: white;"
         "}"
-        );
+    );
 
     typeFilterLayout->addWidget(filterLabel);
     typeFilterLayout->addWidget(filterDropdownType);
@@ -103,7 +100,7 @@ QWidget *FluorinatedPage::createLocationFilterSection()
         "QComboBox QAbstractItemView {"
         "  color: black; background-color: white; selection-background-color: #3498db; selection-color: white;"
         "}"
-        );
+    );
 
     locationFilterLayout->addWidget(filterLabel);
     locationFilterLayout->addWidget(filterDropdownLocation);
@@ -131,7 +128,7 @@ QWidget *FluorinatedPage::createComplianceFilterSection()
         "QComboBox QAbstractItemView {"
         "  color: black; background-color: white; selection-background-color: #3498db; selection-color: white;"
         "}"
-        );
+    );
 
     complianceFilterLayout->addWidget(filterLabel);
     complianceFilterLayout->addWidget(filterDropdownCompliance);
@@ -144,14 +141,12 @@ QWidget *FluorinatedPage::createComplianceFilterSection()
 // Update compliance status
 void FluorinatedPage::updateComplianceStatus()
 {
-    // Clear existing summary cards
     QLayoutItem *child;
     while ((child = summaryCardLayout->takeAt(0)) != nullptr) {
         delete child->widget();
         delete child;
     }
 
-    // Determine compliance status based on filters
     QString pollutant = filterDropdownType->currentText();
     QString location = filterDropdownLocation->currentText();
     QString compliance = filterDropdownCompliance->currentText();
@@ -159,7 +154,6 @@ void FluorinatedPage::updateComplianceStatus()
     QString status = QString("Pollutant: %1\nLocation: %2\nStatus: %3").arg(pollutant, location, compliance);
     QString color = (compliance == "Compliant") ? "green" : "red";
 
-    // Add a summary card with compliance status
     summaryCardLayout->addWidget(createSummaryCard(status, color));
 }
 
@@ -180,53 +174,45 @@ QWidget *FluorinatedPage::createSummaryCard(const QString &title, const QString 
     return card;
 }
 
-QWidget *FluorinatedPage::createVisualizationSection() {
-    // Create the visualization widget
+QWidget *FluorinatedPage::createVisualizationSection()
+{
     QWidget *visualizationWidget = new QWidget();
     visualizationWidget->setStyleSheet("background-color: #e0e0e0; border: 1px solid #ccc; border-radius: 10px;");
     visualizationWidget->setMinimumSize(800, 500);
 
-    // Create a line series for pollutant levels
-    QLineSeries *series = new QLineSeries();
+    QtCharts::QLineSeries *series = new QtCharts::QLineSeries();
     series->setName("Fluorinated Pollutant Levels");
 
-    // Example data for fluorinated pollutants (time, pollutant level)
     series->append(QDateTime::fromString("2024-12-01T08:00:00", Qt::ISODate).toMSecsSinceEpoch(), 45.2);
     series->append(QDateTime::fromString("2024-12-01T12:00:00", Qt::ISODate).toMSecsSinceEpoch(), 47.8);
     series->append(QDateTime::fromString("2024-12-01T16:00:00", Qt::ISODate).toMSecsSinceEpoch(), 44.0);
     series->append(QDateTime::fromString("2024-12-01T20:00:00", Qt::ISODate).toMSecsSinceEpoch(), 49.3);
     series->append(QDateTime::fromString("2024-12-02T00:00:00", Qt::ISODate).toMSecsSinceEpoch(), 50.7);
 
-    // Create the chart and configure it
-    QChart *chart = new QChart();
+    QtCharts::QChart *chart = new QtCharts::QChart();
     chart->addSeries(series);
     chart->setTitle("Fluorinated Pollutants Levels Over Time");
     chart->legend()->setAlignment(Qt::AlignBottom);
 
-    // Configure the X-axis for time
-    QDateTimeAxis *axisX = new QDateTimeAxis;
+    QtCharts::QDateTimeAxis *axisX = new QtCharts::QDateTimeAxis();
     axisX->setFormat("yyyy-MM-dd HH:mm");
     axisX->setTitleText("Time");
     axisX->setTickCount(10);
     chart->addAxis(axisX, Qt::AlignBottom);
     series->attachAxis(axisX);
 
-    // Configure the Y-axis for pollutant levels
-    QValueAxis *axisY = new QValueAxis;
+    QtCharts::QValueAxis *axisY = new QtCharts::QValueAxis();
     axisY->setTitleText("Pollutant Levels (ppm)");
     axisY->setLabelFormat("%.1f");
-    axisY->setRange(40.0, 60.0); // Example range, can be adjusted based on actual data
+    axisY->setRange(40.0, 60.0);
     chart->addAxis(axisY, Qt::AlignLeft);
     series->attachAxis(axisY);
 
-    // Create the chart view
-    QChartView *chartView = new QChartView(chart);
+    QtCharts::QChartView *chartView = new QtCharts::QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
 
-    // Connect the hovered signal to display tooltips
-    connect(series, &QLineSeries::hovered, this, &FluorinatedPage::showChartDataTooltip);
+    connect(series, &QtCharts::QLineSeries::hovered, this, &FluorinatedPage::showChartDataTooltip);
 
-    // Arrange the chart view in the layout
     QVBoxLayout *layout = new QVBoxLayout(visualizationWidget);
     layout->addWidget(chartView);
 
@@ -241,17 +227,14 @@ QWidget *FluorinatedPage::createSummarySection()
     return summaryWidget;
 }
 
-
-void FluorinatedPage::showChartDataTooltip(const QPointF &point, bool state) {
+void FluorinatedPage::showChartDataTooltip(const QPointF &point, bool state)
+{
     if (state) {
-        // Show the tooltip at the current mouse position
         QString tooltipText = QString("Time: %1\nLevel: %2 ppm")
                                   .arg(QDateTime::fromMSecsSinceEpoch(point.x()).toString("yyyy-MM-dd HH:mm"))
-                                  .arg(point.y(), 0, 'f', 2); // Format the level with 2 decimal places
+                                  .arg(point.y(), 0, 'f', 2);
         QToolTip::showText(QCursor::pos(), tooltipText);
     } else {
-        // Hide the tooltip when the mouse leaves the point
         QToolTip::hideText();
     }
 }
-

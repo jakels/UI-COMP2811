@@ -150,7 +150,7 @@ std::vector<WaterQualitySample> DB_GetEntriesByChemicalByLocation(const std::str
     // Iterate through the rows of the CSV
     for (auto& row : reader)
     {
-        std::cout << row << std::endl;
+        // std::cout << row << std::endl;
         WaterQualitySample sample;
         sample.id = row["@id"].get<>();
         sample.samplingPoint = row["sample.samplingPoint"].get<>();

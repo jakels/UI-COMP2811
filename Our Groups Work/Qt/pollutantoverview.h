@@ -15,13 +15,13 @@ public:
 private:
     QLineEdit *searchBar;
     QTableWidget *table;
-    QChartView *createChart();
+    QtCharts::QChartView *createChart();  // Corrected return type
     QTableWidget *createComplianceTable();
     void populateTable();
     void setupSearchFunction();
 
-private slots:
-    void handleSearch();
+    private slots:
+        void handleSearch();
     void showPollutantDetails(int row, int column);
     void showChartDataTooltip(const QPointF &point, bool state);
 };

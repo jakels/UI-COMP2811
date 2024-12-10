@@ -16,15 +16,15 @@ DataVisualizationPage::DataVisualizationPage(QWidget *parent)
 
 void DataVisualizationPage::setupTable()
 {
-    std::vector<WaterQualitySample> samples = DB_GetEntriesByChemicalByLocation("C:/Water.csv", "Endrin", "MALHAM TARN");
+    std::vector<WaterQualitySample> samples = DB_GetEntriesByChemicalByLocation("/Users/kian/Desktop/University Work Y2/UI/UI-COMP2811/Our Groups Work/Qt/Yorkshire 2024 Water Dataset (1).csv", "Endrin", "MALHAM TARN");
 
-    tableWidget->setRowCount(1000); // Example: 5 rows
+    tableWidget->setRowCount(5); // Example: 5 rows
 
     QStringList headers = {"timestamp"};
     tableWidget->setColumnCount(headers.count()); // Example: 3 columns
     tableWidget->setHorizontalHeaderLabels(headers);
 
-    for (int row = 0; row < 1000; ++row)
+    for (int row = 0; row < 5; ++row)
     {
         WaterQualitySample current = samples[row];
 
