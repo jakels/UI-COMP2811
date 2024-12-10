@@ -16,7 +16,7 @@ DataVisualizationPage::DataVisualizationPage(QWidget *parent)
 
 void DataVisualizationPage::setupTable()
 {
-    std::vector<WaterQualitySample> samples = DB_GetEntriesByChemicalByLocation("/Users/kian/Desktop/University Work Y2/UI/UI-COMP2811/Our Groups Work/Qt/Yorkshire 2024 Water Dataset (1).csv", "Endrin", "MALHAM TARN");
+    std::vector<WaterQualitySample> samples = DB_GetEntriesByChemicalAndLocation("Endrin", "MALHAM TARN");
 
     tableWidget->setRowCount(5); // Example: 5 rows
 
