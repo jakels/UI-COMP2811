@@ -234,6 +234,7 @@
 #include "pollutantoverview.h"
 #include "fluorinatedpage.h"
 #include "compliancedashboard.h"
+#include "DatasetInterface.h"
 
 
 // Main application window class
@@ -478,6 +479,7 @@ void DashboardWindow::setupNavigation() {
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
+    DB_Initialise();
 
     DashboardWindow window;
     window.resize(800, 600);

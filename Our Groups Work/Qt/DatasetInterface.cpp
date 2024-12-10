@@ -13,6 +13,7 @@
 #include <ctime>
 #include "sqlite3.h"
 #include "Utils.h"
+#include <cmath>
 
 // Global variables
 std::string CSVfilepath = "Water.csv";
@@ -47,6 +48,21 @@ std::vector<WaterQualitySample> DB_GetCachedEntriesSubset(int count)
     return samples;
 }
 
+
+// Custom comparator to sort by the 'result' field
+bool compareByResult(const WaterQualitySample& a, const WaterQualitySample& b) {
+    return a.sampleDateTime < b.sampleDateTime;
+}
+
+std::vector<WaterQualitySample> OrderSamplesByDate(std::vector<WaterQualitySample> input)
+{
+    Log("Ordering vector of size " + std::to_string(input.size()));
+
+    std::sort(input.begin(), input.end(), compareByResult);
+
+    return input;
+}
+
 // Function to load the CSV file into a vector of WaterQualitySample objects
 std::vector<WaterQualitySample> DB_GetAllEntries(const std::string& filePath)
 {
@@ -54,13 +70,15 @@ std::vector<WaterQualitySample> DB_GetAllEntries(const std::string& filePath)
     csv::CSVReader reader(filePath);
 
     int i = 0;
+    int counter = 0;
 
     // Iterate through the rows of the CSV
     for (auto& row : reader)
     {
-        if(i / reader.n_rows() % 10000 == 0)
+        if(counter == 25000)
         {
             Log("Loaded " + std::to_string(i));
+            counter = 0;
         }
         WaterQualitySample sample;
         sample.id = row["@id"].get<>();
@@ -85,7 +103,9 @@ std::vector<WaterQualitySample> DB_GetAllEntries(const std::string& filePath)
 
         samples.push_back(sample);
         i++;
+        counter++;
     }
+    Log("Finished loading samples at " + std::to_string(i));
 
     return samples;
 }

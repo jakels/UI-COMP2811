@@ -40,7 +40,7 @@ std::vector<WaterQualitySample> DB_GetEntriesByChemical(const std::string& chemi
 std::vector<WaterQualitySample> DB_GetEntriesByChemicalAndLocation(const std::string& chemical, const std::string& location);
 int DB_Initialise();
 std::vector<WaterQualitySample> DB_GetCachedEntriesSubset(int count);
-
+std::vector<WaterQualitySample> OrderSamplesByDate(std::vector<WaterQualitySample> input);
 
 // Function to debug the csv
 int DB_GetEntriesByChemicalAndLeastResult(std::vector<WaterQualitySample> data, std::string determinand);

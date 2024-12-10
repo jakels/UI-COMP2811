@@ -10,6 +10,14 @@
 #include <QtCharts/QChartView>
 #include <QCursor>
 #include <QDebug>
+#include "DatasetInterface.h"
+#include "Utils.h"
+#include <QGridLayout>
+#include <QFrame>
+#include <QDebug>
+#include <QtCharts>
+#include <QDateTime>
+#include <QToolTip>
 
 Pollutantoverview::Pollutantoverview(QWidget *parent)
     : QWidget(parent) {
@@ -33,21 +41,47 @@ QChartView *Pollutantoverview::createChart() {
 
     // Create sample data series
     QLineSeries *series = new QLineSeries();
-    series->append(1, 10);
-    series->append(2, 20);
-    series->append(3, 15);
-    series->append(4, 30);
+
+    // Load in data from the back end, get all the samples that had the chemical
+    std::vector<WaterQualitySample> query = OrderSamplesByDate(DB_GetEntriesByChemical("Endrin"));
+    // Get the number of samples
+    int numberOfSamples = query.size();
+    // Set a variable to hold our maximum result which we will use for scaling axis
+    double maximumResult = 0;
+
+    // Loop through the samples
+    for(int i = 0; i < numberOfSamples; i++)
+    {
+        // Get the current sample
+        WaterQualitySample sample = query[i];
+        // Get the date of the current sample
+        auto sampleDate = sample.sampleDateTime.c_str();
+        // Get the result of the current sample
+        double sampleResult = atof(sample.result.c_str());
+
+        // Debugging
+        Log("Sample " + std::to_string(i) + " has date " + sampleDate + " and result " + std::to_string(sampleResult));
+
+        // If the sample result is bigger than max result then set max result to the sample result
+        if(sampleResult > maximumResult)
+        {
+            maximumResult = sampleResult;
+        }
+
+        // Important part, add the sample data to the chart
+        series->append(QDateTime::fromString(sampleDate, Qt::ISODate).toMSecsSinceEpoch(), sampleResult);
+    }
 
     chart->addSeries(series);
 
     // Configure axes
-    QValueAxis *axisX = new QValueAxis();
-    axisX->setTitleText("Time (Months)");
-    axisX->setLabelFormat("%d");
+    QDateTimeAxis *axisX = new QDateTimeAxis();
+    axisX->setFormat("yyyy-MM-dd HH:mm");
+    axisX->setTitleText("Time");
 
     QValueAxis *axisY = new QValueAxis();
     axisY->setTitleText("Pollutant Level (ppm)");
-    axisY->setLabelFormat("%0.1f");
+    axisY->setLabelFormat("%0.8f");
 
     chart->addAxis(axisX, Qt::AlignBottom);
     chart->addAxis(axisY, Qt::AlignLeft);
@@ -88,20 +122,46 @@ QTableWidget *Pollutantoverview::createComplianceTable() {
     return table;
 }
 
-void Pollutantoverview::populateTable() {
-    QStringList pollutants = { "Chloroform", "Arsenic", "Lead", "Mercury", "Cadmium", "1,1,2-Trichloroethane", "Hexachlorobenzene", "PCBs" };
-    QList<int> levels = {15, 25, 50, 35, 40, 60, 5, 10};
-    QStringList statuses = {"Safe", "Caution", "Exceeds Limit", "Caution", "Exceeds Limit", "Exceeds Limit", "Safe", "Safe"};
-    QStringList riskDescriptions = {
-        "Low toxicity in small doses; used in disinfection.",
-        "Can cause long-term health effects.",
-        "Highly toxic; linked to developmental issues.",
-        "Toxic even in small doses; neurotoxin.",
-        "Toxic and carcinogenic.",
-        "Used in industrial solvents; moderate toxicity.",
-        "Persistent organic pollutant; bioaccumulative.",
-        "Carcinogenic; used in manufacturing transformers."
-    };
+void Pollutantoverview::populateTable()
+{
+    QStringList pollutants = { };
+    QList<int> levels = { };
+    QStringList statuses = { };
+    QStringList riskDescriptions = { };
+
+    // Load in data from the back end, get all the samples that had the chemical
+    std::vector<WaterQualitySample> query = OrderSamplesByDate(DB_GetEntriesByChemical("Endrin"));
+    // Get the number of samples
+    int numberOfSamples = query.size();
+    // Set a variable to hold our maximum result which we will use for scaling axis
+    double maximumResult = 0;
+
+    // Loop through the samples
+    for(int i = 0; i < numberOfSamples; i++)
+    {
+        // Get the current sample
+        WaterQualitySample sample = query[i];
+        // Get the date of the current sample
+        auto sampleDate = sample.sampleDateTime.c_str();
+        // Get the result of the current sample
+        double sampleResult = atof(sample.result.c_str());
+
+        // Debugging
+        Log("Sample " + std::to_string(i) + " has date " + sampleDate + " and result " + std::to_string(sampleResult));
+
+        // If the sample result is bigger than max result then set max result to the sample result
+        if(sampleResult > maximumResult)
+        {
+            maximumResult = sampleResult;
+        }
+
+        // Important part, add the data to the lists
+        pollutants.append(sample.determinandLabel.c_str());
+        levels.append(atoi(sample.result.c_str()));
+        // Processing needs to be done on these to determine if safe or not etc
+        statuses.append("Safe");
+        riskDescriptions.append("?");
+    }
 
     table->setRowCount(pollutants.size());
 
