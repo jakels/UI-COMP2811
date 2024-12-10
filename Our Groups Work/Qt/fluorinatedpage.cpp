@@ -8,6 +8,7 @@
 #include <QtCharts/QValueAxis>
 #include <QDateTime>
 #include <QToolTip>
+#include "DatasetInterface.h"
 
 
 //QT_CHARTS_USE_NAMESPACE
@@ -19,6 +20,10 @@ FluorinatedPage::FluorinatedPage(QWidget *parent)
     filterDropdownLocation(new QComboBox()),
     filterDropdownCompliance(new QComboBox())
 {
+    std::vector<WaterQualitySample> samples = DB_GetEntriesByChemical("", "");
+    for (int i = 0; i < 1000; i++){
+        WaterQualitySample current = samples[i];
+    }
     QWidget *centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
 
