@@ -1,0 +1,56 @@
+# ---------------------------
+# CMake
+# ---------------------------
+
+# Build directories
+/cmake-build-*/
+build/
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+CTestTestfile.cmake
+*.cmake
+
+# Precompiled headers
+*.gch
+*.pch
+
+# ---------------------------
+# CLion
+# ---------------------------
+
+# CMake user files
+.idea/
+
+# User-specific files
+*.iml
+
+# ---------------------------
+# Qt
+# ---------------------------
+
+# Qt build directories
+moc_*.cpp
+ui_*.h
+qrc_*.cpp
+
+# Generated files
+dash_autogen/
+
+# ---------------------------
+# Other
+# ---------------------------
+
+# Backup files
+*~
+*.bak
+
+# Logs
+*.log
+
+# OS-specific files
+.DS_Store
+Thumbs.db
