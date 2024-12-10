@@ -54,3 +54,6 @@ dash_autogen/
 # OS-specific files
 .DS_Store
 Thumbs.db
+*.ninja
+*.json
+*.d
