@@ -124,53 +124,44 @@ QTableWidget *Pollutantoverview::createComplianceTable() {
 
 void Pollutantoverview::populateTable()
 {
-    QStringList pollutants = { };
-    QList<int> levels = { };
-    QStringList statuses = { };
-    QStringList riskDescriptions = { };
+    QStringList pollutants;
+    QList<double> levels;
+    QStringList statuses;
+    QStringList riskDescriptions;
 
     // Load in data from the back end, get all the samples that had the chemical
-    std::vector<WaterQualitySample> query = OrderSamplesByDate(DB_GetEntriesByChemical("Endrin"));
-    // Get the number of samples
+    std::vector<WaterQualitySample> query = OrderSamplesByDate(DB_GetCachedEntries());
     int numberOfSamples = query.size();
-    // Set a variable to hold our maximum result which we will use for scaling axis
-    double maximumResult = 0;
 
-    // Loop through the samples
-    for(int i = 0; i < numberOfSamples; i++)
+    for (int i = 0; i < numberOfSamples; i++)
     {
-        // Get the current sample
         WaterQualitySample sample = query[i];
-        // Get the date of the current sample
-        auto sampleDate = sample.sampleDateTime.c_str();
-        // Get the result of the current sample
         double sampleResult = atof(sample.result.c_str());
 
-        // Debugging
-        Log("Sample " + std::to_string(i) + " has date " + sampleDate + " and result " + std::to_string(sampleResult));
-
-        // If the sample result is bigger than max result then set max result to the sample result
-        if(sampleResult > maximumResult)
-        {
-            maximumResult = sampleResult;
-        }
-
-        // Important part, add the data to the lists
         pollutants.append(sample.determinandLabel.c_str());
-        levels.append(atoi(sample.result.c_str()));
-        // Processing needs to be done on these to determine if safe or not etc
-        statuses.append("Safe");
-        riskDescriptions.append("?");
+        levels.append(sampleResult);
+
+        // Determine status based on thresholds
+        if (sampleResult < 10.0) {
+            statuses.append("Safe");
+            riskDescriptions.append("Within acceptable limits.");
+        } else if (sampleResult < 20.0) {
+            statuses.append("Caution");
+            riskDescriptions.append("Approaching unsafe levels; monitor closely.");
+        } else {
+            statuses.append("Unsafe");
+            riskDescriptions.append("Exceeds safe levels; action required.");
+        }
     }
 
     table->setRowCount(pollutants.size());
 
-    for (int i = 0; i < pollutants.size(); ++i) {
+    for (int i = 0; i < pollutants.size(); ++i)
+    {
         QTableWidgetItem *pollutantItem = new QTableWidgetItem(pollutants[i]);
-        QTableWidgetItem *levelItem = new QTableWidgetItem(QString::number(levels[i]));
+        QTableWidgetItem *levelItem = new QTableWidgetItem(QString::number(levels[i], 'f', 8));
         QTableWidgetItem *statusItem = new QTableWidgetItem(statuses[i]);
 
-        // Set tooltips with descriptions
         pollutantItem->setToolTip(riskDescriptions[i]);
         levelItem->setToolTip(riskDescriptions[i]);
         statusItem->setToolTip("Status: " + statuses[i] + "\n" + riskDescriptions[i]);
@@ -189,6 +180,8 @@ void Pollutantoverview::populateTable()
         table->setItem(i, 2, statusItem);
     }
 }
+
+
 
 void Pollutantoverview::handleSearch() {
     QString query = searchBar->text().toLower();
