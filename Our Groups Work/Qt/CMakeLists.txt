@@ -18,9 +18,7 @@ if(WIN32)
     set(CMAKE_PREFIX_PATH "C:/Qt/6.8.1/mingw_64/lib/cmake")
 elseif(APPLE)
     # macOS Qt installation path - adjust as necessary
-    set(CMAKE_PREFIX_PATH "/Users/mondrgnedi/Qt/6.8.0/macos/lib/cmake")
-
-
+    set(CMAKE_PREFIX_PATH "/Users/Kian/Qt/6.8.1/clang_64/lib/cmake")
 endif()
 
 # Find required Qt packages
