@@ -1,6 +1,4 @@
 #include "datavisualizationpage.h"
-#include "DatasetInterface.h"
-
 
 DataVisualizationPage::DataVisualizationPage(QWidget *parent)
     : QWidget(parent)
@@ -16,43 +14,15 @@ DataVisualizationPage::DataVisualizationPage(QWidget *parent)
 
 void DataVisualizationPage::setupTable()
 {
-    std::vector<WaterQualitySample> samples = DB_GetEntriesByChemicalByLocation("C:/Water.csv", "Endrin", "MALHAM TARN");
+    tableWidget->setRowCount(5); // Example: 5 rows
+    tableWidget->setColumnCount(3); // Example: 3 columns
 
-    tableWidget->setRowCount(1000); // Example: 5 rows
-
-    QStringList headers = {"timestamp"};
-    tableWidget->setColumnCount(headers.count()); // Example: 3 columns
+    QStringList headers = {"Column 1", "Column 2", "Column 3"};
     tableWidget->setHorizontalHeaderLabels(headers);
 
-    for (int row = 0; row < 1000; ++row)
-    {
-        WaterQualitySample current = samples[row];
-
-        std::cout << row << "" << current.sampleDateTime << std::endl;
-        continue;
-        for (int col = 0; col < headers.count(); ++col)
-        {
-            std::string colDisplay = "";
-            switch (col)
-            {
-                default:
-                    break;
-                case 0:
-                    colDisplay = current.sampleDateTime;
-                    break;
-                case 1:
-                    colDisplay = current.samplingPoint;
-                    break;
-                case 2:
-                    colDisplay = current.samplingPointNotation;
-                    break;
-                case 3:
-                    colDisplay = current.samplingPointLabel;
-                    break;
-            }
-
-
-            QTableWidgetItem *item = new QTableWidgetItem(QString(colDisplay.c_str()));
+    for (int row = 0; row < 5; ++row) {
+        for (int col = 0; col < 3; ++col) {
+            QTableWidgetItem *item = new QTableWidgetItem(QString("Item %1,%2").arg(row + 1).arg(col + 1));
             tableWidget->setItem(row, col, item);
         }
     }
