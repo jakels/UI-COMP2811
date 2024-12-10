@@ -53,8 +53,15 @@ std::vector<WaterQualitySample> DB_GetAllEntries(const std::string& filePath)
     std::vector<WaterQualitySample> samples;
     csv::CSVReader reader(filePath);
 
+    int i = 0;
+
     // Iterate through the rows of the CSV
-    for (auto& row : reader) {
+    for (auto& row : reader)
+    {
+        if(i / reader.n_rows() % 10000 == 0)
+        {
+            Log("Loaded " + std::to_string(i));
+        }
         WaterQualitySample sample;
         sample.id = row["@id"].get<>();
         sample.samplingPoint = row["sample.samplingPoint"].get<>();
@@ -77,6 +84,7 @@ std::vector<WaterQualitySample> DB_GetAllEntries(const std::string& filePath)
         sample.rawRow = row;
 
         samples.push_back(sample);
+        i++;
     }
 
     return samples;
@@ -169,7 +177,8 @@ std::vector<WaterQualitySample> DB_GetEntriesByChemicalAndLocation(const std::st
     return samples;
 }
 
-int DB_GetEntriesByChemicalAndLeastResult(std::vector<WaterQualitySample> dataSetVector, std::string determinand) {
+int DB_GetEntriesByChemicalAndLeastResult(std::vector<WaterQualitySample> dataSetVector, std::string determinand)
+{
     double minimumResult = 999.999;
     int minimumRow = 0;
     for (int i = 0; i < std::min(dataSetVector.size(), static_cast<size_t>(140733)); ++i) {
