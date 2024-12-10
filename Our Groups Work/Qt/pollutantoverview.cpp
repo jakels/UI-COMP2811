@@ -28,11 +28,11 @@ Pollutantoverview::Pollutantoverview(QWidget *parent)
     setLayout(layout);
 }
 
-QtCharts::QChartView *Pollutantoverview::createChart() {
-    QtCharts::QChart *chart = new QtCharts::QChart();
+QChartView *Pollutantoverview::createChart() {
+    QChart *chart = new QChart();
 
     // Create sample data series
-    QtCharts::QLineSeries *series = new QtCharts::QLineSeries();
+    QLineSeries *series = new QLineSeries();
     series->append(1, 10);
     series->append(2, 20);
     series->append(3, 15);
@@ -41,11 +41,11 @@ QtCharts::QChartView *Pollutantoverview::createChart() {
     chart->addSeries(series);
 
     // Configure axes
-    QtCharts::QValueAxis *axisX = new QtCharts::QValueAxis();
+    QValueAxis *axisX = new QValueAxis();
     axisX->setTitleText("Time (Months)");
     axisX->setLabelFormat("%d");
 
-    QtCharts::QValueAxis *axisY = new QtCharts::QValueAxis();
+    QValueAxis *axisY = new QValueAxis();
     axisY->setTitleText("Pollutant Level (ppm)");
     axisY->setLabelFormat("%0.1f");
 
@@ -56,7 +56,7 @@ QtCharts::QChartView *Pollutantoverview::createChart() {
     series->attachAxis(axisY);
 
     // Add safe threshold as a reference line
-    QtCharts::QLineSeries *threshold = new QtCharts::QLineSeries();
+    QLineSeries *threshold = new QLineSeries();
     threshold->append(0, 20);
     threshold->append(4, 20);
     threshold->setName("Safe Threshold");
@@ -68,9 +68,9 @@ QtCharts::QChartView *Pollutantoverview::createChart() {
     chart->setTitle("Pollutant Trends Over Time");
 
     // Connect hovered signal
-    connect(series, &QtCharts::QLineSeries::hovered, this, &Pollutantoverview::showChartDataTooltip);
+    connect(series, &QLineSeries::hovered, this, &Pollutantoverview::showChartDataTooltip);
 
-    return new QtCharts::QChartView(chart);
+    return new QChartView(chart);
 }
 
 QTableWidget *Pollutantoverview::createComplianceTable() {

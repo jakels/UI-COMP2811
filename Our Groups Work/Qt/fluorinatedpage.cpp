@@ -2,10 +2,7 @@
 #include <QGridLayout>
 #include <QFrame>
 #include <QDebug>
-#include <QtCharts/QChartView>
-#include <QtCharts/QLineSeries>
-#include <QtCharts/QDateTimeAxis>
-#include <QtCharts/QValueAxis>
+#include <QtCharts>
 #include <QDateTime>
 #include <QToolTip>
 #include "DatasetInterface.h"
@@ -180,7 +177,7 @@ QWidget *FluorinatedPage::createVisualizationSection()
     visualizationWidget->setStyleSheet("background-color: #e0e0e0; border: 1px solid #ccc; border-radius: 10px;");
     visualizationWidget->setMinimumSize(800, 500);
 
-    QtCharts::QLineSeries *series = new QtCharts::QLineSeries();
+    QLineSeries *series = new QLineSeries();
     series->setName("Fluorinated Pollutant Levels");
 
     series->append(QDateTime::fromString("2024-12-01T08:00:00", Qt::ISODate).toMSecsSinceEpoch(), 45.2);
@@ -189,29 +186,29 @@ QWidget *FluorinatedPage::createVisualizationSection()
     series->append(QDateTime::fromString("2024-12-01T20:00:00", Qt::ISODate).toMSecsSinceEpoch(), 49.3);
     series->append(QDateTime::fromString("2024-12-02T00:00:00", Qt::ISODate).toMSecsSinceEpoch(), 50.7);
 
-    QtCharts::QChart *chart = new QtCharts::QChart();
+    QChart *chart = new QChart();
     chart->addSeries(series);
     chart->setTitle("Fluorinated Pollutants Levels Over Time");
     chart->legend()->setAlignment(Qt::AlignBottom);
 
-    QtCharts::QDateTimeAxis *axisX = new QtCharts::QDateTimeAxis();
+    QDateTimeAxis *axisX = new QDateTimeAxis();
     axisX->setFormat("yyyy-MM-dd HH:mm");
     axisX->setTitleText("Time");
     axisX->setTickCount(10);
     chart->addAxis(axisX, Qt::AlignBottom);
     series->attachAxis(axisX);
 
-    QtCharts::QValueAxis *axisY = new QtCharts::QValueAxis();
+    QValueAxis *axisY = new QValueAxis();
     axisY->setTitleText("Pollutant Levels (ppm)");
     axisY->setLabelFormat("%.1f");
     axisY->setRange(40.0, 60.0);
     chart->addAxis(axisY, Qt::AlignLeft);
     series->attachAxis(axisY);
 
-    QtCharts::QChartView *chartView = new QtCharts::QChartView(chart);
+    QChartView *chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
 
-    connect(series, &QtCharts::QLineSeries::hovered, this, &FluorinatedPage::showChartDataTooltip);
+    connect(series, &QLineSeries::hovered, this, &FluorinatedPage::showChartDataTooltip);
 
     QVBoxLayout *layout = new QVBoxLayout(visualizationWidget);
     layout->addWidget(chartView);

@@ -41,6 +41,7 @@ set(PROJECT_SOURCES
         fluorinatedpage.cpp
         Utils.cpp
         Utils.h
+        compliancedashboard.cpp
 )
 
 # Define the executable for Qt 6 or lower

@@ -16,8 +16,6 @@ DataVisualizationPage::DataVisualizationPage(QWidget *parent)
 
 void DataVisualizationPage::setupTable()
 {
-    std::vector<WaterQualitySample> samples = DB_GetEntriesByChemicalAndLocation("Endrin", "MALHAM TARN");
-
     tableWidget->setRowCount(5); // Example: 5 rows
 
     QStringList headers = {"timestamp"};
@@ -26,34 +24,7 @@ void DataVisualizationPage::setupTable()
 
     for (int row = 0; row < 5; ++row)
     {
-        WaterQualitySample current = samples[row];
-
-        std::cout << row << "" << current.sampleDateTime << std::endl;
-        continue;
-        for (int col = 0; col < headers.count(); ++col)
-        {
-            std::string colDisplay = "";
-            switch (col)
-            {
-                default:
-                    break;
-                case 0:
-                    colDisplay = current.sampleDateTime;
-                    break;
-                case 1:
-                    colDisplay = current.samplingPoint;
-                    break;
-                case 2:
-                    colDisplay = current.samplingPointNotation;
-                    break;
-                case 3:
-                    colDisplay = current.samplingPointLabel;
-                    break;
-            }
-
-
-            QTableWidgetItem *item = new QTableWidgetItem(QString(colDisplay.c_str()));
-            tableWidget->setItem(row, col, item);
-        }
+        QTableWidgetItem *item = new QTableWidgetItem(QString("A"));
+        tableWidget->setItem(row, 1, item);
     }
 }
