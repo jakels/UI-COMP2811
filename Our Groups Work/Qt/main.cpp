@@ -233,6 +233,7 @@
 #include "datavisualizationpage.h"
 #include "pollutantoverview.h"
 #include "fluorinatedpage.h"
+#include "compliancedashboard.h"
 
 
 // Main application window class
@@ -267,6 +268,7 @@ DashboardWindow::DashboardWindow(QWidget *parent)
     stackedWidget->addWidget(createDataVisualizationPage());
     stackedWidget->addWidget(new Pollutantoverview(this));
     stackedWidget->addWidget(new FluorinatedPage(this));
+    stackedWidget->addWidget(new ComplianceDashboard(this));
 
     // Main layout for the central widget
     QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
