@@ -3,7 +3,7 @@
 # ---------------------------
 
 # Build directories
-/cmake-build-*/
+Our Groups Work/Qt/cmake-build-*/
 build/
 
 # CMake generated files
