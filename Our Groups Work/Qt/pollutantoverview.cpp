@@ -11,7 +11,6 @@
 #include <QCursor>
 #include <QDebug>
 
-
 Pollutantoverview::Pollutantoverview(QWidget *parent)
     : QWidget(parent) {
     QVBoxLayout *layout = new QVBoxLayout(this);
@@ -29,11 +28,11 @@ Pollutantoverview::Pollutantoverview(QWidget *parent)
     setLayout(layout);
 }
 
-QChartView *Pollutantoverview::createChart() {
-    QChart *chart = new QChart();
+QtCharts::QChartView *Pollutantoverview::createChart() {
+    QtCharts::QChart *chart = new QtCharts::QChart();
 
     // Create sample data series
-    QLineSeries *series = new QLineSeries();
+    QtCharts::QLineSeries *series = new QtCharts::QLineSeries();
     series->append(1, 10);
     series->append(2, 20);
     series->append(3, 15);
@@ -42,11 +41,11 @@ QChartView *Pollutantoverview::createChart() {
     chart->addSeries(series);
 
     // Configure axes
-    QValueAxis *axisX = new QValueAxis();
+    QtCharts::QValueAxis *axisX = new QtCharts::QValueAxis();
     axisX->setTitleText("Time (Months)");
     axisX->setLabelFormat("%d");
 
-    QValueAxis *axisY = new QValueAxis();
+    QtCharts::QValueAxis *axisY = new QtCharts::QValueAxis();
     axisY->setTitleText("Pollutant Level (ppm)");
     axisY->setLabelFormat("%0.1f");
 
@@ -57,7 +56,7 @@ QChartView *Pollutantoverview::createChart() {
     series->attachAxis(axisY);
 
     // Add safe threshold as a reference line
-    QLineSeries *threshold = new QLineSeries();
+    QtCharts::QLineSeries *threshold = new QtCharts::QLineSeries();
     threshold->append(0, 20);
     threshold->append(4, 20);
     threshold->setName("Safe Threshold");
@@ -69,9 +68,9 @@ QChartView *Pollutantoverview::createChart() {
     chart->setTitle("Pollutant Trends Over Time");
 
     // Connect hovered signal
-    connect(series, &QLineSeries::hovered, this, &Pollutantoverview::showChartDataTooltip);
+    connect(series, &QtCharts::QLineSeries::hovered, this, &Pollutantoverview::showChartDataTooltip);
 
-    return new QChartView(chart);
+    return new QtCharts::QChartView(chart);
 }
 
 QTableWidget *Pollutantoverview::createComplianceTable() {
@@ -130,7 +129,6 @@ void Pollutantoverview::populateTable() {
         table->setItem(i, 2, statusItem);
     }
 }
-
 
 void Pollutantoverview::handleSearch() {
     QString query = searchBar->text().toLower();
