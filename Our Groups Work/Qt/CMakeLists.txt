@@ -39,6 +39,8 @@ set(PROJECT_SOURCES
         datavisualizationpage.cpp
         pollutantoverview.cpp
         fluorinatedpage.cpp
+        Utils.cpp
+        Utils.h
 )
 
 # Define the executable for Qt 6 or lower

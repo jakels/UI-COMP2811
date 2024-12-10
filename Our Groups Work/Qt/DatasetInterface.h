@@ -25,6 +25,8 @@ public:
     std::string purposeLabel;
     std::string samplingPointEasting;
     std::string samplingPointNorthing;
+    std::vector<std::string> headers;
+    std::vector<std::string> rawRow;
 
     // Function to print the sample's details
     void print() const;
@@ -32,15 +34,16 @@ public:
 
 // Function to load the CSV file into a vector of WaterQualitySample objects
 std::vector<WaterQualitySample> DB_GetAllEntries(const std::string& filePath);
-std::vector<WaterQualitySample> DB_GetEntriesByLocation(const std::string& filePath, const std::string& locationName);
-std::vector<WaterQualitySample> DB_GetEntriesByChemical(const std::string& filePath, const std::string& chemical);
-std::vector<WaterQualitySample> DB_GetEntriesByChemicalByLocation(const std::string& filePath, const std::string& chemical, const std::string& location);
+std::vector<WaterQualitySample> DB_GetCachedEntries();
+std::vector<WaterQualitySample> DB_GetEntriesByLocation(const std::string& locationName);
+std::vector<WaterQualitySample> DB_GetEntriesByChemical(const std::string& chemical);
+std::vector<WaterQualitySample> DB_GetEntriesByChemicalAndLocation(const std::string& chemical, const std::string& location);
+int DB_Initialise();
+std::vector<WaterQualitySample> DB_GetCachedEntriesSubset(int count);
 
 
 // Function to debug the csv
-int DebugData();
-int MinimumResultRow(std::vector<WaterQualitySample> data, std::string determinand);
-int FindNumberOfUniqueEntries(std::vector<WaterQualitySample> dataSetVector);
+int DB_GetEntriesByChemicalAndLeastResult(std::vector<WaterQualitySample> data, std::string determinand);
 
 
 #endif // WATER_QUALITY_SAMPLE_H

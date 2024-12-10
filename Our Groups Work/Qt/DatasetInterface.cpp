@@ -1,28 +1,57 @@
-//
-// Created by Jake on 06/12/2024.
-//
+/* DatasetInterface.cpp
+    This file is the interface for the water dataset, it has functions for initialising the DB and querying it.
+    You cannot use the database without first initialising it with DB_Initialise
+*/
 
+// Imports
 #include "DatasetInterface.h"
 #include <iostream>
 #include <string>
 #include <vector>
+#include <iostream>
+#include <chrono>
+#include <ctime>
 #include "sqlite3.h"
+#include "Utils.h"
 
-void WaterQualitySample::print() const {
-    std::cout << "ID: " << id
+// Global variables
+std::string CSVfilepath = "Water.csv";
+std::vector<WaterQualitySample> cachedDataset;
+int cachedDatasetSize = 0;
+bool initialised = false;
+
+// Print utility function
+void WaterQualitySample::print() const
+{
+    std::cout << "Sample ID: " << id
               << ", Sampling Point: " << samplingPoint
               << ", Result: " << result
               << ", Date: " << sampleDateTime
               << std::endl;
 }
-// Function to load the CSV file into a vector of WaterQualitySample objects
-std::vector<WaterQualitySample> DB_GetAllEntries(const std::string& filePath) {
-    std::vector<WaterQualitySample> samples;
 
-    // Open the CSV file using csv-parser
-    std::cout << "Loading CSV..." << std::endl;
+std::vector<WaterQualitySample> DB_GetCachedEntries()
+{
+    Log("Getting cached entries");
+    return cachedDataset;
+}
+
+std::vector<WaterQualitySample> DB_GetCachedEntriesSubset(int count)
+{
+    Log("Getting cached entries subset of size " + std::to_string(count));
+    std::vector<WaterQualitySample> samples;
+    for (int i = 0; i < count; i++)
+    {
+        samples.push_back(cachedDataset[i]);
+    }
+    return samples;
+}
+
+// Function to load the CSV file into a vector of WaterQualitySample objects
+std::vector<WaterQualitySample> DB_GetAllEntries(const std::string& filePath)
+{
+    std::vector<WaterQualitySample> samples;
     csv::CSVReader reader(filePath);
-    std::cout << "Loaded CSV." << std::endl;
 
     // Iterate through the rows of the CSV
     for (auto& row : reader) {
@@ -44,6 +73,8 @@ std::vector<WaterQualitySample> DB_GetAllEntries(const std::string& filePath) {
         sample.purposeLabel = row["sample.purpose.label"].get<>();
         sample.samplingPointEasting = row["sample.samplingPoint.easting"].get<>();
         sample.samplingPointNorthing = row["sample.samplingPoint.northing"].get<>();
+        sample.headers = reader.get_col_names();
+        sample.rawRow = row;
 
         samples.push_back(sample);
     }
@@ -51,36 +82,33 @@ std::vector<WaterQualitySample> DB_GetAllEntries(const std::string& filePath) {
     return samples;
 }
 
-std::vector<WaterQualitySample> DB_GetEntriesByLocation(const std::string& filePath, const std::string& specificLocation)
+// Initialise the database by loading all the CSV data into a SQL db
+int DB_Initialise()
 {
+    Log("Initialising database...");
+    cachedDataset = DB_GetAllEntries(GetAbsoloutePathFromRelative(CSVfilepath));
+    cachedDatasetSize = cachedDataset.size();
+    initialised = true;
+
+    if(cachedDataset.size() == 0)
+    {
+        Log("All entries size was 0, returning error code.");
+        return 1;
+    }
+
+    Log("Initialised database.");
+    return 0;
+}
+
+std::vector<WaterQualitySample> DB_GetEntriesByLocation(const std::string& specificLocation)
+{
+    Log("Getting all entries with location of " + specificLocation);
     std::vector<WaterQualitySample> samples;
 
-    // Open the CSV file using csv-parser
-    std::cout << "Loading CSV..." << std::endl;
-    csv::CSVReader reader(filePath);
-    std::cout << "Loaded CSV." << std::endl;
-
     // Iterate through the rows of the CSV
-    for (auto& row : reader)
+    for (int i = 0; i < cachedDatasetSize; i++)
     {
-        WaterQualitySample sample;
-        sample.id = row["@id"].get<>();
-        sample.samplingPoint = row["sample.samplingPoint"].get<>();
-        sample.samplingPointNotation = row["sample.samplingPoint.notation"].get<>();
-        sample.samplingPointLabel = row["sample.samplingPoint.label"].get<>();
-        sample.sampleDateTime = row["sample.sampleDateTime"].get<>();
-        sample.determinandLabel = row["determinand.label"].get<>();
-        sample.determinandDefinition = row["determinand.definition"].get<>();
-        sample.determinandNotation = row["determinand.notation"].get<>();
-        sample.resultQualifierNotation = row["resultQualifier.notation"].get<>();
-        sample.result = row["result"].get<>();
-        sample.codedResultInterpretation = row["codedResultInterpretation.interpretation"].get<>();
-        sample.determinandUnitLabel = row["determinand.unit.label"].get<>();
-        sample.sampledMaterialTypeLabel = row["sample.sampledMaterialType.label"].get<>();
-        sample.isComplianceSample = row["sample.isComplianceSample"].get<>();
-        sample.purposeLabel = row["sample.purpose.label"].get<>();
-        sample.samplingPointEasting = row["sample.samplingPoint.easting"].get<>();
-        sample.samplingPointNorthing = row["sample.samplingPoint.northing"].get<>();
+        WaterQualitySample sample = cachedDataset[i];
 
         if(sample.samplingPointLabel != specificLocation)
         {
@@ -90,40 +118,20 @@ std::vector<WaterQualitySample> DB_GetEntriesByLocation(const std::string& fileP
         samples.push_back(sample);
     }
 
+    Log("Returned a vector with " + std::to_string( samples.size() ) + " elements.");
     return samples;
 }
 
 
-std::vector<WaterQualitySample> DB_GetEntriesByChemical(const std::string& filePath, const std::string& chemical)
+std::vector<WaterQualitySample> DB_GetEntriesByChemical(const std::string& chemical)
 {
+    Log("Getting all entries with chemical of " + chemical);
     std::vector<WaterQualitySample> samples;
 
-    // Open the CSV file using csv-parser
-    std::cout << "Loading CSV..." << std::endl;
-    csv::CSVReader reader(filePath);
-    std::cout << "Loaded CSV." << std::endl;
-
     // Iterate through the rows of the CSV
-    for (auto& row : reader)
+    for (int i = 0; i < cachedDatasetSize; i++)
     {
-        WaterQualitySample sample;
-        sample.id = row["@id"].get<>();
-        sample.samplingPoint = row["sample.samplingPoint"].get<>();
-        sample.samplingPointNotation = row["sample.samplingPoint.notation"].get<>();
-        sample.samplingPointLabel = row["sample.samplingPoint.label"].get<>();
-        sample.sampleDateTime = row["sample.sampleDateTime"].get<>();
-        sample.determinandLabel = row["determinand.label"].get<>();
-        sample.determinandDefinition = row["determinand.definition"].get<>();
-        sample.determinandNotation = row["determinand.notation"].get<>();
-        sample.resultQualifierNotation = row["resultQualifier.notation"].get<>();
-        sample.result = row["result"].get<>();
-        sample.codedResultInterpretation = row["codedResultInterpretation.interpretation"].get<>();
-        sample.determinandUnitLabel = row["determinand.unit.label"].get<>();
-        sample.sampledMaterialTypeLabel = row["sample.sampledMaterialType.label"].get<>();
-        sample.isComplianceSample = row["sample.isComplianceSample"].get<>();
-        sample.purposeLabel = row["sample.purpose.label"].get<>();
-        sample.samplingPointEasting = row["sample.samplingPoint.easting"].get<>();
-        sample.samplingPointNorthing = row["sample.samplingPoint.northing"].get<>();
+        WaterQualitySample sample = cachedDataset[i];
 
         if(sample.determinandLabel != chemical)
         {
@@ -133,44 +141,23 @@ std::vector<WaterQualitySample> DB_GetEntriesByChemical(const std::string& fileP
         samples.push_back(sample);
     }
 
+    Log("Returned a vector with " + std::to_string( samples.size() ) + " elements.");
     return samples;
 }
 
 
 
-std::vector<WaterQualitySample> DB_GetEntriesByChemicalByLocation(const std::string& filePath, const std::string& chemical, const std::string& location)
+std::vector<WaterQualitySample> DB_GetEntriesByChemicalAndLocation(const std::string& chemical, const std::string& location)
 {
+    Log("Getting all entries with location of " + location + " and chemical of " + chemical);
     std::vector<WaterQualitySample> samples;
 
-    // Open the CSV file using csv-parser
-    std::cout << "Loading CSV..." << std::endl;
-    csv::CSVReader reader(filePath);
-    std::cout << "Loaded CSV." << std::endl;
-
     // Iterate through the rows of the CSV
-    for (auto& row : reader)
+    for (int i = 0; i < cachedDatasetSize; i++)
     {
-        std::cout << row << std::endl;
-        WaterQualitySample sample;
-        sample.id = row["@id"].get<>();
-        sample.samplingPoint = row["sample.samplingPoint"].get<>();
-        sample.samplingPointNotation = row["sample.samplingPoint.notation"].get<>();
-        sample.samplingPointLabel = row["sample.samplingPoint.label"].get<>();
-        sample.sampleDateTime = row["sample.sampleDateTime"].get<>();
-        sample.determinandLabel = row["determinand.label"].get<>();
-        sample.determinandDefinition = row["determinand.definition"].get<>();
-        sample.determinandNotation = row["determinand.notation"].get<>();
-        sample.resultQualifierNotation = row["resultQualifier.notation"].get<>();
-        sample.result = row["result"].get<>();
-        sample.codedResultInterpretation = row["codedResultInterpretation.interpretation"].get<>();
-        sample.determinandUnitLabel = row["determinand.unit.label"].get<>();
-        sample.sampledMaterialTypeLabel = row["sample.sampledMaterialType.label"].get<>();
-        sample.isComplianceSample = row["sample.isComplianceSample"].get<>();
-        sample.purposeLabel = row["sample.purpose.label"].get<>();
-        sample.samplingPointEasting = row["sample.samplingPoint.easting"].get<>();
-        sample.samplingPointNorthing = row["sample.samplingPoint.northing"].get<>();
+        WaterQualitySample sample = cachedDataset[i];
 
-        if(sample.determinandLabel != chemical && sample.samplingPointLabel != location)
+        if(sample.determinandLabel != chemical || sample.samplingPointLabel != location)
         {
             continue;
         }
@@ -178,96 +165,26 @@ std::vector<WaterQualitySample> DB_GetEntriesByChemicalByLocation(const std::str
         samples.push_back(sample);
     }
 
+    Log("Returned a vector with " + std::to_string( samples.size() ) + " elements.");
     return samples;
 }
 
-
-int DebugDataSet()
-{
-    const std::string filePath = "yorkshire_water_quality.csv";
-
-    try {
-        // Load the data from the CSV file
-        std::vector<WaterQualitySample> data = DB_GetAllEntries(filePath);
-
-        // Print the first few rows for verification
-        for (size_t i = 0; i < std::min(data.size(), static_cast<size_t>(10)); ++i) {
-            data[i].print();
-        }
-    } catch (const std::exception& e) {
-        std::cerr << "Error loading CSV file: " << e.what() << std::endl;
-        return 1;
-    }
-
-    return 0;
-}
-
-int MinimumResultRow(std::vector<WaterQualitySample> dataSetVector, std::string determinand)
-{
+int DB_GetEntriesByChemicalAndLeastResult(std::vector<WaterQualitySample> dataSetVector, std::string determinand) {
     double minimumResult = 999.999;
     int minimumRow = 0;
-    for (int i = 0; i < std::min(dataSetVector.size(), static_cast<size_t>(140733)); ++i)
-    {
+    for (int i = 0; i < std::min(dataSetVector.size(), static_cast<size_t>(140733)); ++i) {
         WaterQualitySample current = dataSetVector[i];
-        if(current.determinandLabel != determinand)
-        {
+        if (current.determinandLabel != determinand) {
             continue;
         }
-        if( stod( current.result ) < minimumResult)
-        {
+        if (stod(current.result) < minimumResult) {
             minimumRow = i;
-            minimumResult = stod( current.result );
+            minimumResult = stod(current.result);
         }
     }
 
     dataSetVector[minimumRow].print();
     return minimumRow;
-}
-
-class StringList {
-private:
-    std::vector<std::string> list;
-
-public:
-    // Function to check if a string is in the list
-    bool contains(const std::string& str) const {
-        return std::find(list.begin(), list.end(), str) != list.end();
-    }
-
-    // Function to add a string to the list
-    void add(const std::string& str) {
-        if (!contains(str)) { // Only add if the string is not already in the list
-            list.push_back(str);
-        } else {
-            std::cout << "String \"" << str << "\" is already in the list.\n";
-        }
-    }
-
-    // Function to print all strings in the list
-    void print() const {
-        for (const auto& str : list) {
-            std::cout << str << "\n";
-        }
-    }
-};
-
-int FindNumberOfUniqueEntries(std::vector<WaterQualitySample> dataSetVector)
-{
-    StringList myList;
-
-    int uniqueDeterms = 0;
-    std::vector<std::string> determinandsSeen;
-    for (int i = 0; i < std::min(dataSetVector.size(), static_cast<size_t>(140733)); ++i)
-    {
-        WaterQualitySample current = dataSetVector[i];
-        if(myList.contains(current.determinandLabel) == false)
-        {
-            myList.add(current.determinandLabel);
-            uniqueDeterms++;
-        }
-    }
-
-    return uniqueDeterms;
 }
 
 int SQLCreateDatabase(std::string filename)
