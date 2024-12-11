@@ -60,7 +60,17 @@ QWidget *FluorinatedPage::createTypeFilterSection()
     QLabel *filterLabel = new QLabel("Select Type:");
     filterLabel->setStyleSheet("font-size: 16px; font-weight: bold; color: black;");
 
-    QStringList pollutantTypes = {"PFAS Compliance", "Fluorinated Compound A", "Fluorinated Compound B"};
+    QStringList pollutantTypes = {
+            "Trifluralin",
+            "Fluoroxypyr",
+            "FLUORENE",
+            "Fluoranthene",
+            "Diflurobnzrn",
+            "Fluoride - F",
+            "Fluazifopbut",
+            "Flutriafol",
+            "Cyfluthrin"
+    };
     filterDropdownType->addItems(pollutantTypes);
     filterDropdownType->setStyleSheet(
         "QComboBox {"
@@ -88,7 +98,11 @@ QWidget *FluorinatedPage::createLocationFilterSection()
     QLabel *filterLabel = new QLabel("Select Location:");
     filterLabel->setStyleSheet("font-size: 16px; font-weight: bold; color: black;");
 
-    QStringList locations = {"North America", "Europe", "Asia", "Global"};
+    QStringList locations = {"Any"};
+    for(auto location : DB_UniqueLocations())
+    {
+        locations.append(location.c_str());
+    }
     filterDropdownLocation->addItems(locations);
     filterDropdownLocation->setStyleSheet(
         "QComboBox {"
@@ -127,8 +141,8 @@ QWidget *FluorinatedPage::createComplianceFilterSection()
         "}"
     );
 
-    complianceFilterLayout->addWidget(filterLabel);
-    complianceFilterLayout->addWidget(filterDropdownCompliance);
+    //complianceFilterLayout->addWidget(filterLabel);
+    //complianceFilterLayout->addWidget(filterDropdownCompliance);
 
     connect(filterDropdownCompliance, &QComboBox::currentTextChanged, this, &FluorinatedPage::updateComplianceStatus);
 
@@ -146,12 +160,28 @@ void FluorinatedPage::updateComplianceStatus()
 
     QString pollutant = filterDropdownType->currentText();
     QString location = filterDropdownLocation->currentText();
-    QString compliance = filterDropdownCompliance->currentText();
+    std::vector<WaterQualitySample> samplesOfTheFluroCompound = DB_GetEntriesByChemical(pollutant.toStdString());
+    if(samplesOfTheFluroCompound.size() == 0)
+    {
+        QMessageBox::information(this, "No data","No data for the fluro-compound selected.");
+        return;
+    }
+    QString safetyLevel = SAMPLE_GetSafetyLevel(samplesOfTheFluroCompound.back()).c_str();
 
-    QString status = QString("Pollutant: %1\nLocation: %2\nStatus: %3").arg(pollutant, location, compliance);
-    QString color = (compliance == "Compliant") ? "green" : "red";
+    QString status = QString("Pollutant: %1\nLocation: %2\nStatus: %3").arg(pollutant, location, safetyLevel);
+    QString color = "green";
+    if(safetyLevel == "Caution")
+    {
+        color = "orange";
+    }
+    if(safetyLevel == "Danger")
+    {
+        color = "red";
+    }
+
 
     summaryCardLayout->addWidget(createSummaryCard(status, color));
+    updateChartData();
 }
 
 // Create summary card
@@ -171,44 +201,64 @@ QWidget *FluorinatedPage::createSummaryCard(const QString &title, const QString 
     return card;
 }
 
+QLineSeries *seriesFluro;
+QDateTimeAxis *axisXFluro;
+QValueAxis *axisYFluro;
+
 QWidget *FluorinatedPage::createVisualizationSection()
 {
     QWidget *visualizationWidget = new QWidget();
     visualizationWidget->setStyleSheet("background-color: #e0e0e0; border: 1px solid #ccc; border-radius: 10px;");
     visualizationWidget->setMinimumSize(800, 500);
 
-    QLineSeries *series = new QLineSeries();
-    series->setName("Fluorinated Pollutant Levels");
+    seriesFluro = new QLineSeries();
+    seriesFluro->setName("Fluorinated Pollutant Levels");
 
-    series->append(QDateTime::fromString("2024-12-01T08:00:00", Qt::ISODate).toMSecsSinceEpoch(), 45.2);
-    series->append(QDateTime::fromString("2024-12-01T12:00:00", Qt::ISODate).toMSecsSinceEpoch(), 47.8);
-    series->append(QDateTime::fromString("2024-12-01T16:00:00", Qt::ISODate).toMSecsSinceEpoch(), 44.0);
-    series->append(QDateTime::fromString("2024-12-01T20:00:00", Qt::ISODate).toMSecsSinceEpoch(), 49.3);
-    series->append(QDateTime::fromString("2024-12-02T00:00:00", Qt::ISODate).toMSecsSinceEpoch(), 50.7);
+
+    // Load in data from the backend, get all the samples that had the chemical
+    std::vector<WaterQualitySample> query = OrderSamplesByDate(DB_GetEntriesByChemical("Fluoroxypyr"));
+    int numberOfSamples = query.size();
+    double maximumResult = 0;
+
+    // Loop through the samples
+    for (int i = 0; i < numberOfSamples; i++)
+    {
+        WaterQualitySample sample = query[i];
+        auto sampleDate = sample.sampleDateTime.c_str();
+        double sampleResult = atof(sample.result.c_str());
+
+        if (sampleResult > maximumResult) {
+            maximumResult = sampleResult;
+        }
+
+        // Add the sample data to the chart
+        seriesFluro->append(QDateTime::fromString(sampleDate, Qt::ISODate).toMSecsSinceEpoch(), sampleResult);
+    }
 
     QChart *chart = new QChart();
-    chart->addSeries(series);
+    chart->addSeries(seriesFluro);
     chart->setTitle("Fluorinated Pollutants Levels Over Time");
     chart->legend()->setAlignment(Qt::AlignBottom);
 
-    QDateTimeAxis *axisX = new QDateTimeAxis();
-    axisX->setFormat("yyyy-MM-dd HH:mm");
-    axisX->setTitleText("Time");
-    axisX->setTickCount(10);
-    chart->addAxis(axisX, Qt::AlignBottom);
-    series->attachAxis(axisX);
+    axisXFluro = new QDateTimeAxis();
+    axisXFluro->setFormat("yyyy-MM-dd HH:mm");
+    axisXFluro->setTitleText("Time");
+    axisXFluro->setTickCount(10);
+    chart->addAxis(axisXFluro, Qt::AlignBottom);
+    seriesFluro->attachAxis(axisXFluro);
 
-    QValueAxis *axisY = new QValueAxis();
-    axisY->setTitleText("Pollutant Levels (ppm)");
-    axisY->setLabelFormat("%.1f");
-    axisY->setRange(40.0, 60.0);
-    chart->addAxis(axisY, Qt::AlignLeft);
-    series->attachAxis(axisY);
+    axisYFluro = new QValueAxis();
+    std::string title = "Pollutant Levels " + query[0].determinandUnitLabel;
+    axisYFluro->setTitleText(title.c_str());
+    axisYFluro->setLabelFormat("%.9f");
+    axisYFluro->setRange(0, maximumResult);
+    chart->addAxis(axisYFluro, Qt::AlignLeft);
+    seriesFluro->attachAxis(axisYFluro);
 
     QChartView *chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
 
-    connect(series, &QLineSeries::hovered, this, &FluorinatedPage::showChartDataTooltip);
+    connect(seriesFluro, &QLineSeries::hovered, this, &FluorinatedPage::showChartDataTooltip);
 
     QVBoxLayout *layout = new QVBoxLayout(visualizationWidget);
     layout->addWidget(chartView);
@@ -227,11 +277,50 @@ QWidget *FluorinatedPage::createSummarySection()
 void FluorinatedPage::showChartDataTooltip(const QPointF &point, bool state)
 {
     if (state) {
-        QString tooltipText = QString("Time: %1\nLevel: %2 ppm")
+        QString tooltipText = QString("Time: %1\nLevel: %2")
                                   .arg(QDateTime::fromMSecsSinceEpoch(point.x()).toString("yyyy-MM-dd HH:mm"))
                                   .arg(point.y(), 0, 'f', 2);
         QToolTip::showText(QCursor::pos(), tooltipText);
     } else {
         QToolTip::hideText();
+    }
+}
+
+void FluorinatedPage::updateChartData()
+{
+    // Clear old data
+    seriesFluro->clear();
+
+    QString pollutant = filterDropdownType->currentText();
+    QString location = filterDropdownLocation->currentText();
+    QString compliance = filterDropdownCompliance->currentText();
+
+    std::vector<WaterQualitySample> query;
+
+    // If location is "Any", query by chemical only
+    if (location == "Any") {
+        query = OrderSamplesByDate(DB_GetEntriesByChemical(pollutant.toStdString()));
+    } else {
+        query = OrderSamplesByDate(DB_GetEntriesByChemicalAndLocation(pollutant.toStdString(), location.toStdString()));
+    }
+
+    double maximumResult = 0;
+
+    for (auto &sample : query)
+    {
+        double sampleResult = atof(sample.result.c_str());
+        if (sampleResult > maximumResult) {
+            maximumResult = sampleResult;
+        }
+        seriesFluro->append(QDateTime::fromString(sample.sampleDateTime.c_str(), Qt::ISODate).toMSecsSinceEpoch(), sampleResult);
+    }
+
+    // Update the Y axis range if we have data
+    if (!query.empty()) {
+        axisYFluro->setRange(0, maximumResult);
+    } else {
+        // If no data, reset to default range
+        axisYFluro->setRange(0, 1);
+        QMessageBox::information(this, "No data", "There was no data for your query.");
     }
 }

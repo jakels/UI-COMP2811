@@ -26,6 +26,7 @@ private:
         void handleSearch();
     void showPollutantDetails(int row, int column);
     void showChartDataTooltip(const QPointF &point, bool state);
+    void updateChartData(std::string chemName);
 };
 
 #endif // POLLUTANTOVERVIEW_H

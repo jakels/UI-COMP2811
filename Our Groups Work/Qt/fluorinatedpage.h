@@ -43,6 +43,7 @@ private:
     void updateComplianceStatus();
 
     void showChartDataTooltip(const QPointF &point, bool state);
+    void updateChartData();
 
 };
 

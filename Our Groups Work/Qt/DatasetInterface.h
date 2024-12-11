@@ -48,6 +48,13 @@ int NumberOfCautionEntries(std::vector<WaterQualitySample> samples);
 int NumberOfDangerEntries(std::vector<WaterQualitySample> samples);
 int NumberOfEntriesWithLevelType(std::vector<WaterQualitySample> samples, std::string level);
 std::string SAMPLE_GetSafetyLevel(WaterQualitySample sample);
+std::vector<std::string> DB_UniqueLocations();
+std::vector<std::string> DB_UniqueChemicals();
+bool SAMPLE_CheckSampleThreshold(WaterQualitySample sample, std::string thresholdType);
+int SAMPLES_NumberOfSafeEntries();
+int SAMPLES_NumberOfCautionEntries();
+int SAMPLES_NumberOfDangerEntries();
+
 
 // Function to debug the csv
 int DB_GetEntriesByChemicalAndLeastResult(std::vector<WaterQualitySample> data, std::string determinand);

@@ -140,6 +140,11 @@ QScrollArea *DashboardWindow::createContent() {
 }
 
 QFrame *DashboardWindow::createCard(const QString &title, const QString &style) {
+    int numberOfSafe = SAMPLES_NumberOfSafeEntries();
+    int numberOfCaution = SAMPLES_NumberOfCautionEntries();
+    int numberOfDanger = SAMPLES_NumberOfDangerEntries();
+
+
     QFrame *card = new QFrame();
     card->setStyleSheet(style);
 
@@ -152,6 +157,11 @@ QFrame *DashboardWindow::createCard(const QString &title, const QString &style) 
     titleLabel->setStyleSheet("font-size: 22px; font-weight: bold; color: #2c3e50; text-align: center;");
 
     QLabel *summaryLabel = new QLabel("Summary Information...");
+    if(title.toStdString() == "Pollutant Overview")
+    {
+        summaryLabel->setText(("Number of safe " + std::to_string(numberOfSafe) + " Number of caution " + std::to_string(numberOfCaution) + " Number of danger " + std::to_string(numberOfDanger)).c_str());
+
+    }
     summaryLabel->setStyleSheet("font-size: 16px; color: #7f8c8d; text-align: center;");
     summaryLabel->setWordWrap(true);
 

@@ -7120,7 +7120,7 @@ SQLITE_API SQLITE_DEPRECATED void sqlite3_soft_heap_limit(int N);
 ** ^The third and fourth parameters to this function are the table and column
 ** name of the desired column, respectively.
 **
-** ^Metadata is returned by writing to the memory locations passed as the 5th
+** ^Metadata is returned by writing to the memory uniqueLocations passed as the 5th
 ** and subsequent parameters to this function. ^Any of these arguments may be
 ** NULL, in which case the corresponding element of metadata is omitted.
 **

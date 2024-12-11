@@ -15,6 +15,8 @@
 #include <QScrollArea>
 #include <QMessageBox>
 #include <QFrame>
+#include "DatasetInterface.h"
+#include "Utils.h"
 
 ComplianceDashboard::ComplianceDashboard(QWidget *parent)
     : QWidget(parent), cardWidth(300), cardHeight(300) // Updated card dimensions
@@ -39,9 +41,18 @@ ComplianceDashboard::ComplianceDashboard(QWidget *parent)
     statusFilter = new QComboBox(this);
     QPushButton *applyFilterButton = new QPushButton("Apply Filters", this);
 
-    locationFilter->addItems({"All Locations", "Location A", "Location B", "Location C"});
-    pollutantFilter->addItems({"All Pollutants", "Pollutant X", "Pollutant Y", "Pollutant Z"});
-    statusFilter->addItems({"All Statuses", "Compliant", "Non-Compliant"});
+    locationFilter->addItem("Any Location");
+    pollutantFilter->addItem("Any Pollutant");
+
+    for(auto location : DB_UniqueLocations()){
+        locationFilter->addItem(location.c_str());
+    }
+
+    for(auto chemical : DB_UniqueChemicals()){
+        pollutantFilter->addItem(chemical.c_str());
+    }
+
+    statusFilter->addItems({"Any Status", "Safe", "Caution", "Danger"});
 
     filterLayout->addWidget(new QLabel("Location:", this));
     filterLayout->addWidget(locationFilter);
@@ -66,79 +77,7 @@ ComplianceDashboard::ComplianceDashboard(QWidget *parent)
     mainLayout->addWidget(scrollArea);
 
     // Mock data setup
-    mockData = {
-        {"Location A", "Pollutant X", "Compliant"},
-        {"Location B", "Pollutant Y", "Non-Compliant"},
-        {"Location C", "Pollutant Z", "Compliant"},
-        {"Location D", "Pollutant W", "Non-Compliant"},
-        {"Location E", "Pollutant V", "Compliant"},
-        {"Location F", "Pollutant U", "Non-Compliant"},
-        {"Location A", "Pollutant X", "Compliant"},
-        {"Location B", "Pollutant Y", "Non-Compliant"},
-        {"Location C", "Pollutant Z", "Compliant"},
-        {"Location D", "Pollutant W", "Non-Compliant"},
-        {"Location E", "Pollutant V", "Compliant"},
-        {"Location F", "Pollutant U", "Non-Compliant"},
-        {"Location A", "Pollutant X", "Compliant"},
-        {"Location B", "Pollutant Y", "Non-Compliant"},
-        {"Location C", "Pollutant Z", "Compliant"},
-        {"Location D", "Pollutant W", "Non-Compliant"},
-        {"Location E", "Pollutant V", "Compliant"},
-        {"Location F", "Pollutant U", "Non-Compliant"},
-        {"Location A", "Pollutant X", "Compliant"},
-        {"Location B", "Pollutant Y", "Non-Compliant"},
-        {"Location C", "Pollutant Z", "Compliant"},
-        {"Location D", "Pollutant W", "Non-Compliant"},
-        {"Location E", "Pollutant V", "Compliant"},
-        {"Location F", "Pollutant U", "Non-Compliant"},
-        {"Location B", "Pollutant Y", "Non-Compliant"},
-        {"Location C", "Pollutant Z", "Compliant"},
-        {"Location D", "Pollutant W", "Non-Compliant"},
-        {"Location E", "Pollutant V", "Compliant"},
-        {"Location F", "Pollutant U", "Non-Compliant"},
-        {"Location A", "Pollutant X", "Compliant"},
-        {"Location B", "Pollutant Y", "Non-Compliant"},
-        {"Location C", "Pollutant Z", "Compliant"},
-        {"Location D", "Pollutant W", "Non-Compliant"},
-        {"Location E", "Pollutant V", "Compliant"},
-        {"Location F", "Pollutant U", "Non-Compliant"},
-        {"Location A", "Pollutant X", "Compliant"},
-        {"Location B", "Pollutant Y", "Non-Compliant"},
-        {"Location C", "Pollutant Z", "Compliant"},
-        {"Location D", "Pollutant W", "Non-Compliant"},
-        {"Location E", "Pollutant V", "Compliant"},
-        {"Location F", "Pollutant U", "Non-Compliant"},
-        {"Location A", "Pollutant X", "Compliant"},
-        {"Location B", "Pollutant Y", "Non-Compliant"},
-        {"Location C", "Pollutant Z", "Compliant"},
-        {"Location D", "Pollutant W", "Non-Compliant"},
-        {"Location E", "Pollutant V", "Compliant"},
-        {"Location F", "Pollutant U", "Non-Compliant"},
-        {"Location B", "Pollutant Y", "Non-Compliant"},
-        {"Location C", "Pollutant Z", "Compliant"},
-        {"Location D", "Pollutant W", "Non-Compliant"},
-        {"Location E", "Pollutant V", "Compliant"},
-        {"Location F", "Pollutant U", "Non-Compliant"},
-        {"Location A", "Pollutant X", "Compliant"},
-        {"Location B", "Pollutant Y", "Non-Compliant"},
-        {"Location C", "Pollutant Z", "Compliant"},
-        {"Location D", "Pollutant W", "Non-Compliant"},
-        {"Location E", "Pollutant V", "Compliant"},
-        {"Location F", "Pollutant U", "Non-Compliant"},
-        {"Location A", "Pollutant X", "Compliant"},
-        {"Location B", "Pollutant Y", "Non-Compliant"},
-        {"Location C", "Pollutant Z", "Compliant"},
-        {"Location D", "Pollutant W", "Non-Compliant"},
-        {"Location E", "Pollutant V", "Compliant"},
-        {"Location F", "Pollutant U", "Non-Compliant"},
-        {"Location A", "Pollutant X", "Compliant"},
-        {"Location B", "Pollutant Y", "Non-Compliant"},
-        {"Location C", "Pollutant Z", "Compliant"},
-        {"Location D", "Pollutant W", "Non-Compliant"},
-        {"Location E", "Pollutant V", "Compliant"},
-        {"Location F", "Pollutant U", "Non-Compliant"}
-
-    };
+    mockData = { };
 
     connect(applyFilterButton, &QPushButton::clicked, this, &ComplianceDashboard::applyFilters);
 
@@ -171,7 +110,7 @@ void ComplianceDashboard::displaySummaryCards(const std::vector<MockSample> &sam
                 color: white;
                 box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
             }
-        )").arg(sample.status == "Compliant" ? "#2ECC71" : "#E74C3C"));
+        )").arg(sample.status == "Safe" ? "#2ECC71" : "#E74C3C"));
 
         card->setMinimumSize(cardWidth, cardHeight);
 
@@ -245,11 +184,15 @@ int ComplianceDashboard::calculateColumns()
 
 void ComplianceDashboard::showDetails(const MockSample &sample)
 {
+    std::string historicalData;
+    for (auto sample : DB_GetEntriesByChemicalAndLocation(sample.pollutant, sample.location)){
+        historicalData += sample.sampleDateTime + " " + sample.result + "\n";
+    }
     QMessageBox::information(this, "Details for " + QString::fromStdString(sample.pollutant),
                              "Location: " + QString::fromStdString(sample.location) + "\n"
                                                                                       "Pollutant: " + QString::fromStdString(sample.pollutant) + "\n"
                                                                               "Status: " + QString::fromStdString(sample.status) + "\n\n"
-                                                                           "Historical Trends: (Example details about the pollutant here)");
+                                                                           "Historical Trends: " + historicalData.c_str());
 }
 
 void ComplianceDashboard::applyFilters()
@@ -259,14 +202,32 @@ void ComplianceDashboard::applyFilters()
     QString selectedStatus = statusFilter->currentText();
 
     std::vector<MockSample> filteredSamples;
-    for (const auto &sample : mockData)
+    std::vector<WaterQualitySample> waterSamples;
+    if(selectedLocation.toStdString() != "Any Location" && selectedPollutant.toStdString() != "Any Pollutant")
     {
-        if ((selectedLocation == "All Locations" || sample.location == selectedLocation.toStdString()) &&
-            (selectedPollutant == "All Pollutants" || sample.pollutant == selectedPollutant.toStdString()) &&
-            (selectedStatus == "All Statuses" || sample.status == selectedStatus.toStdString()))
+        waterSamples = DB_GetEntriesByChemicalAndLocation(selectedPollutant.toStdString(), selectedLocation.toStdString());
+    }
+    if(selectedLocation.toStdString() == "Any Location" && selectedPollutant.toStdString() != "Any Pollutant")
+    {
+        waterSamples = DB_GetEntriesByChemical(selectedPollutant.toStdString());
+    }
+    if(selectedLocation.toStdString() != "Any Location" && selectedPollutant.toStdString() == "Any Pollutant")
+    {
+        waterSamples = DB_GetEntriesByLocation(selectedLocation.toStdString());
+    }
+    if(selectedLocation.toStdString() == "Any Location" && selectedPollutant.toStdString() == "Any Pollutant")
+    {
+        QMessageBox::information(this, "Dataset too large", "Please refine your search.");
+        return;
+    }
+    for (auto sample : waterSamples)
+    {
+        auto status = SAMPLE_GetSafetyLevel(sample);
+        if(status != selectedStatus.toStdString() && selectedStatus.toStdString() != "Any Status")
         {
-            filteredSamples.push_back(sample);
+            continue;
         }
+        filteredSamples.push_back({sample.samplingPointLabel, sample.result, status});
     }
 
     displaySummaryCards(filteredSamples);

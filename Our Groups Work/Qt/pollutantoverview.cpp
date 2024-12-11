@@ -19,6 +19,8 @@
 #include <QDateTime>
 #include <QToolTip>
 
+std::string targetChemical = "Endrin";
+
 Pollutantoverview::Pollutantoverview(QWidget *parent)
     : QWidget(parent) {
     QVBoxLayout *layout = new QVBoxLayout(this);
@@ -54,14 +56,17 @@ Pollutantoverview::Pollutantoverview(QWidget *parent)
     setLayout(layout);
 }
 
+QLineSeries *series;
+QDateTimeAxis *axisX;
+QValueAxis *axisY;
 QChartView *Pollutantoverview::createChart() {
     QChart *chart = new QChart();
 
-    // Create sample data series
-    QLineSeries *series = new QLineSeries();
+    // Create sample data seriesFluro
+    series = new QLineSeries();
 
     // Load in data from the backend, get all the samples that had the chemical
-    std::vector<WaterQualitySample> query = OrderSamplesByDate(DB_GetEntriesByChemical("Endrin"));
+    std::vector<WaterQualitySample> query = OrderSamplesByDate(DB_GetEntriesByChemical(targetChemical));
     int numberOfSamples = query.size();
     double maximumResult = 0;
 
@@ -82,12 +87,12 @@ QChartView *Pollutantoverview::createChart() {
     chart->addSeries(series);
 
     // Configure axes
-    QDateTimeAxis *axisX = new QDateTimeAxis();
+    axisX = new QDateTimeAxis();
     axisX->setFormat("yyyy-MM-dd HH:mm");
     axisX->setTitleText("Time");
 
-    QValueAxis *axisY = new QValueAxis();
-    axisY->setTitleText("Pollutant Level (ppm)");
+    axisY = new QValueAxis();
+    axisY->setTitleText(targetChemical.c_str());
     axisY->setLabelFormat("%0.8f");
 
     chart->addAxis(axisX, Qt::AlignBottom);
@@ -98,9 +103,9 @@ QChartView *Pollutantoverview::createChart() {
 
     // Add safe threshold as a reference line
     QLineSeries *threshold = new QLineSeries();
-    threshold->append(0, 20);
-    threshold->append(4, 20);
-    threshold->setName("Safe Threshold");
+    //threshold->append(0, 20);
+    //threshold->append(4, 20);
+    //threshold->setName("Safe Threshold");
 
     chart->addSeries(threshold);
     threshold->attachAxis(axisX);
@@ -116,7 +121,7 @@ QChartView *Pollutantoverview::createChart() {
 
 QTableWidget *Pollutantoverview::createComplianceTable() {
     table = new QTableWidget(8, 3, this); // Adjust row count dynamically later
-    table->setHorizontalHeaderLabels({"Pollutant", "Level (ppm)", "Status"});
+    table->setHorizontalHeaderLabels({"Pollutant", "Level", "Status"});
     table->horizontalHeader()->setStretchLastSection(true);
     table->verticalHeader()->setVisible(false);
 
@@ -212,13 +217,15 @@ void Pollutantoverview::showPollutantDetails(int row, int column) {
     QString level = table->item(row, 1)->text();
     QString status = table->item(row, 2)->text();
     QString description = table->item(row, 0)->toolTip();
+    updateChartData(pollutant.toStdString());
 
     QString message = QString("Pollutant: %1\nLevel: %2 ppm\nStatus: %3\n\nDescription: %4")
                           .arg(pollutant)
                           .arg(level)
                           .arg(status)
-                          .arg(description);
+                          .arg(DB_GetEntriesByChemical(pollutant.toStdString())[0].determinandDefinition.c_str());
 
+    targetChemical = pollutant.toStdString();
     QMessageBox::information(this, "Pollutant Details", message);
 }
 
@@ -229,5 +236,40 @@ void Pollutantoverview::showChartDataTooltip(const QPointF &point, bool state) {
                                                .arg(point.y()));
     } else {
         QToolTip::hideText();
+    }
+}
+
+void Pollutantoverview::updateChartData(std::string chemName)
+{
+    // Clear old data
+    series->clear();
+
+    // Load in data from the backend, get all the samples that had the chemical
+    std::vector<WaterQualitySample> query = OrderSamplesByDate(DB_GetEntriesByChemical(chemName));
+    int numberOfSamples = query.size();
+    double maximumResult = 0;
+
+    // Loop through the samples
+    for (int i = 0; i < numberOfSamples; i++) {
+        WaterQualitySample sample = query[i];
+        auto sampleDate = sample.sampleDateTime.c_str();
+        double sampleResult = atof(sample.result.c_str());
+
+        if (sampleResult > maximumResult) {
+            maximumResult = sampleResult;
+        }
+
+        // Add the sample data to the chart
+        series->append(QDateTime::fromString(sampleDate, Qt::ISODate).toMSecsSinceEpoch(), sampleResult);
+    }
+
+    // Update the Y axis range if we have data
+    if (!query.empty()) {
+        axisY->setRange(0, maximumResult+0.1);
+        axisY->setTitleText(chemName.c_str());
+    } else {
+        // If no data, reset to default range
+        axisY->setRange(0, 1);
+        QMessageBox::information(this, "No data", "There was no data for your query.");
     }
 }

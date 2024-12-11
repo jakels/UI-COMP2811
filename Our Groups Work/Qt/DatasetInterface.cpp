@@ -20,6 +20,11 @@ std::string CSVfilepath = "Water.csv";
 std::vector<WaterQualitySample> cachedDataset;
 int cachedDatasetSize = 0;
 bool initialised = false;
+std::vector<std::string> uniqueChemicals;
+std::vector<std::string> uniqueLocations;
+int safeEntriesTotal = 0;
+int cautionEntriesTotal = 0;
+int dangerEntriesTotal = 0;
 
 // Print utility function
 void WaterQualitySample::print() const
@@ -51,7 +56,7 @@ std::vector<WaterQualitySample> DB_GetCachedEntriesSubset(int count)
 
 // Custom comparator to sort by the 'result' field
 bool compareByResult(const WaterQualitySample& a, const WaterQualitySample& b) {
-    return a.sampleDateTime < b.sampleDateTime;
+    return a.sampleDateTime > b.sampleDateTime;
 }
 
 std::vector<WaterQualitySample> OrderSamplesByDate(std::vector<WaterQualitySample> input)
@@ -68,14 +73,15 @@ std::vector<WaterQualitySample> DB_GetAllEntries(const std::string& filePath)
 {
     std::vector<WaterQualitySample> samples;
     csv::CSVReader reader(filePath);
-    std::vector<std::string> chemicals;
 
+    int maxLoad = 1450000;
     int i = 0;
     int counter = 0;
 
     // Iterate through the rows of the CSV
     for (auto& row : reader)
     {
+        if(i==maxLoad){break;}
         if(counter == 25000)
         {
             Log("Loaded " + std::to_string(i));
@@ -101,20 +107,38 @@ std::vector<WaterQualitySample> DB_GetAllEntries(const std::string& filePath)
         sample.samplingPointNorthing = row["sample.samplingPoint.northing"].get<>();
         sample.headers = reader.get_col_names();
         sample.rawRow = row;
-        sample.safeMax = 0.001;
-        sample.cautionMax = 0.002;
+        sample.safeMax = 0.005;
+        sample.cautionMax = 0.02;
 
-        if(std::find(chemicals.begin(), chemicals.end(), sample.determinandLabel) != chemicals.end()) {
+        if(!(std::find(uniqueChemicals.begin(), uniqueChemicals.end(), sample.determinandLabel) != uniqueChemicals.end()))
+        {
+            uniqueChemicals.push_back(sample.determinandLabel);
+        }
 
-        } else {
-            chemicals.push_back(sample.determinandLabel);
+        if(!(std::find(uniqueLocations.begin(), uniqueLocations.end(), sample.samplingPointLabel) != uniqueLocations.end()))
+        {
+            uniqueLocations.push_back(sample.samplingPointLabel);
+        }
+
+        std::string safetyLevel = SAMPLE_GetSafetyLevel(sample);
+        if(safetyLevel == "Safe")
+        {
+            safeEntriesTotal++;
+        }
+        if(safetyLevel == "Caution")
+        {
+            cautionEntriesTotal++;
+        }
+        if(safetyLevel == "Danger")
+        {
+            dangerEntriesTotal++;
         }
 
         samples.push_back(sample);
         i++;
         counter++;
     }
-    Log("Finished loading samples at " + std::to_string(i) + ", " + std::to_string(chemicals.size()) + " unique chemicals.");
+    Log("Finished loading samples at " + std::to_string(i) + ", " + std::to_string(uniqueChemicals.size()) + " unique uniqueChemicals.");
 
     return samples;
 }
@@ -253,19 +277,19 @@ int SAMPLES_NumberOfEntriesWithLevelType(std::vector<WaterQualitySample> samples
     return total;
 }
 
-int SAMPLES_NumberOfSafeEntries(std::vector<WaterQualitySample> samples)
+int SAMPLES_NumberOfSafeEntries()
 {
-    return SAMPLES_NumberOfEntriesWithLevelType(samples, "Safe");
+    return safeEntriesTotal;
 }
 
-int SAMPLES_NumberOfCautionEntries(std::vector<WaterQualitySample> samples)
+int SAMPLES_NumberOfCautionEntries()
 {
-    return SAMPLES_NumberOfEntriesWithLevelType(samples, "Caution");
+    return cautionEntriesTotal;
 }
 
-int SAMPLES_NumberOfDangerEntries(std::vector<WaterQualitySample> samples)
+int SAMPLES_NumberOfDangerEntries()
 {
-    return SAMPLES_NumberOfEntriesWithLevelType(samples, "Danger");
+    return dangerEntriesTotal;
 }
 
 std::string SAMPLE_GetSafetyLevel(WaterQualitySample sample)
@@ -285,5 +309,18 @@ std::string SAMPLE_GetSafetyLevel(WaterQualitySample sample)
         return "Danger";
     }
 
-    return "NULL";
+    return "Unknown";
 }
+
+std::vector<std::string> DB_UniqueLocations()
+{
+    Log("Getting all unique locations..");
+    return uniqueLocations;
+}
+
+std::vector<std::string> DB_UniqueChemicals()
+{
+    Log("Getting all unique chemicals..");
+    return uniqueChemicals;
+}
+
