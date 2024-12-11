@@ -68,6 +68,7 @@ std::vector<WaterQualitySample> DB_GetAllEntries(const std::string& filePath)
 {
     std::vector<WaterQualitySample> samples;
     csv::CSVReader reader(filePath);
+    std::vector<std::string> chemicals;
 
     int i = 0;
     int counter = 0;
@@ -100,12 +101,20 @@ std::vector<WaterQualitySample> DB_GetAllEntries(const std::string& filePath)
         sample.samplingPointNorthing = row["sample.samplingPoint.northing"].get<>();
         sample.headers = reader.get_col_names();
         sample.rawRow = row;
+        sample.safeMax = 0.001;
+        sample.cautionMax = 0.002;
+
+        if(std::find(chemicals.begin(), chemicals.end(), sample.determinandLabel) != chemicals.end()) {
+
+        } else {
+            chemicals.push_back(sample.determinandLabel);
+        }
 
         samples.push_back(sample);
         i++;
         counter++;
     }
-    Log("Finished loading samples at " + std::to_string(i));
+    Log("Finished loading samples at " + std::to_string(i) + ", " + std::to_string(chemicals.size()) + " unique chemicals.");
 
     return samples;
 }
@@ -173,8 +182,6 @@ std::vector<WaterQualitySample> DB_GetEntriesByChemical(const std::string& chemi
     return samples;
 }
 
-
-
 std::vector<WaterQualitySample> DB_GetEntriesByChemicalAndLocation(const std::string& chemical, const std::string& location)
 {
     Log("Getting all entries with location of " + location + " and chemical of " + chemical);
@@ -216,61 +223,67 @@ int DB_GetEntriesByChemicalAndLeastResult(std::vector<WaterQualitySample> dataSe
     return minimumRow;
 }
 
-int SQLCreateDatabase(std::string filename)
+bool SAMPLE_CheckSampleThreshold(WaterQualitySample sample, std::string thresholdType)
 {
-    sqlite3 *db;
-    char *errMsg = nullptr;
-
-    // Open or create a database file
-    int exitCode = sqlite3_open(filename.c_str(), &db);
-
-    if (exitCode) {
-        // If opening the database failed
-        fprintf(stderr, "Error opening database: %s\n", sqlite3_errmsg(db));
-        return 1;
-    } else {
-        // If the database was opened successfully
-        printf("Database created/opened successfully.\n");
+    if(thresholdType == "Safe")
+    {
+        return atof(sample.result.c_str()) < sample.safeMax;
     }
-
-    // SQL statement to create the table
-    const char *createTableSQL = R"(
-        CREATE TABLE IF NOT EXISTS WaterQuality (
-            id TEXT PRIMARY KEY,
-            samplingPoint TEXT,
-            samplingPointNotation TEXT,
-            samplingPointLabel TEXT,
-            sampleDateTime TEXT,
-            determinandLabel TEXT,
-            determinandDefinition TEXT,
-            determinandNotation TEXT,
-            resultQualifierNotation TEXT,
-            result REAL,
-            codedResultInterpretation TEXT,
-            determinandUnitLabel TEXT,
-            sampledMaterialTypeLabel TEXT,
-            isComplianceSample TEXT,
-            purposeLabel TEXT,
-            samplingPointEasting INTEGER,
-            samplingPointNorthing INTEGER
-        );
-    )";
-
-    // Execute the SQL statement
-    exitCode = sqlite3_exec(db, createTableSQL, nullptr, nullptr, &errMsg);
-
-    if (exitCode != SQLITE_OK) {
-        // If the table creation failed
-        fprintf(stderr, "Error creating table: %s\n", errMsg);
-        sqlite3_free(errMsg);
-    } else {
-        // If the table was created successfully
-        printf("Table created successfully.\n");
+    else if(thresholdType == "Caution")
+    {
+        return atof(sample.result.c_str()) < sample.cautionMax;
     }
-
-    // Close the database connection
-    sqlite3_close(db);
-    return 0;
+    else if (thresholdType == "Danger")
+    {
+        return atof(sample.result.c_str()) > sample.cautionMax;
+    }
 }
 
+int SAMPLES_NumberOfEntriesWithLevelType(std::vector<WaterQualitySample> samples, std::string level)
+{
+    int total = 0;
+    for(int i = 0; i < samples.size(); i++)
+    {
+        if(SAMPLE_CheckSampleThreshold(samples[i], level))
+        {
+            total++;
+        }
+    }
 
+    return total;
+}
+
+int SAMPLES_NumberOfSafeEntries(std::vector<WaterQualitySample> samples)
+{
+    return SAMPLES_NumberOfEntriesWithLevelType(samples, "Safe");
+}
+
+int SAMPLES_NumberOfCautionEntries(std::vector<WaterQualitySample> samples)
+{
+    return SAMPLES_NumberOfEntriesWithLevelType(samples, "Caution");
+}
+
+int SAMPLES_NumberOfDangerEntries(std::vector<WaterQualitySample> samples)
+{
+    return SAMPLES_NumberOfEntriesWithLevelType(samples, "Danger");
+}
+
+std::string SAMPLE_GetSafetyLevel(WaterQualitySample sample)
+{
+    if(SAMPLE_CheckSampleThreshold(sample, "Safe"))
+    {
+        return "Safe";
+    }
+
+    if(SAMPLE_CheckSampleThreshold(sample, "Caution"))
+    {
+        return "Caution";
+    }
+
+    if(SAMPLE_CheckSampleThreshold(sample, "Danger"))
+    {
+        return "Danger";
+    }
+
+    return "NULL";
+}

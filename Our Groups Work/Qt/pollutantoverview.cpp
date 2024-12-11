@@ -137,27 +137,31 @@ void Pollutantoverview::populateTable()
     QStringList riskDescriptions;
 
     // Load in data from the backend
-    std::vector<WaterQualitySample> query = OrderSamplesByDate(DB_GetCachedEntries());
+    std::vector<WaterQualitySample> query = DB_GetCachedEntriesSubset(2000);
     int numberOfSamples = query.size();
 
     for (int i = 0; i < numberOfSamples; i++) {
         WaterQualitySample sample = query[i];
         double sampleResult = atof(sample.result.c_str());
 
-        pollutants.append(sample.determinandLabel.c_str());
-        levels.append(sampleResult);
+        // Debugging
+        //Log("Sample " + std::to_string(i) + " has date " + sampleDate + " and result " + std::to_string(sampleResult));
 
-        // Determine status based on thresholds
-        if (sampleResult < 10.0) {
-            statuses.append("Safe");
-            riskDescriptions.append("Within acceptable limits.");
-        } else if (sampleResult < 20.0) {
-            statuses.append("Caution");
-            riskDescriptions.append("Approaching unsafe levels; monitor closely.");
-        } else {
-            statuses.append("Unsafe");
-            riskDescriptions.append("Exceeds safe levels; action required.");
-        }
+        // If the sample result is bigger than max result then set max result to the sample result
+        //if(sampleResult > maximumResult)
+        //{
+        //    maximumResult = sampleResult;
+        //}
+
+        // Important part, add the data to the lists
+        auto determinandLabel = sample.determinandLabel.c_str();
+        auto level = atoi(sample.result.c_str());
+        pollutants.append(determinandLabel);
+        levels.append(level);
+
+        statuses.append(SAMPLE_GetSafetyLevel(sample).c_str());
+
+        riskDescriptions.append("?");
     }
 
     table->setRowCount(pollutants.size());
