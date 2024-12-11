@@ -30,10 +30,8 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Charts)
 
 # Define all project source files, including new chart-related classes and sqlite3.c
 set(PROJECT_SOURCES
-        main.cpp
         mainwindow.cpp
         mainwindow.h
-        mainwindow.ui
         DatasetInterface.cpp
         DatasetInterface.h
         csv.hpp
@@ -48,6 +46,7 @@ set(PROJECT_SOURCES
         popspage.h
 )
 
+
 # Define the executable for Qt 6 or lower
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(dash
@@ -61,6 +60,7 @@ else()
         add_executable(dash ${PROJECT_SOURCES})
     endif()
 endif()
+
 
 # Link Qt Widgets and Charts libraries
 target_link_libraries(dash PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Charts)

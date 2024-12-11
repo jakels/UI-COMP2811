@@ -1,24 +1,46 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QApplication>
 #include <QMainWindow>
+#include <QStackedWidget>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QScrollArea>
+#include <QPushButton>
+#include <QLabel>
+#include <QComboBox>
+#include <QFrame>
+#include <QDebug>
+#include <QTranslator>
 
+#include "datavisualizationpage.h"
+#include "pollutantoverview.h"
+#include "fluorinatedpage.h"
+#include "compliancedashboard.h"
+#include "DatasetInterface.h"
+#include "popspage.h"
 
-QT_BEGIN_NAMESPACE
-namespace Ui {
-class MainWindow;
-}
-QT_END_NAMESPACE
-
-class MainWindow : public QMainWindow
-{
+// Main application window class
+class DashboardWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    explicit DashboardWindow(QWidget *parent = nullptr);
 
 private:
-    Ui::MainWindow *ui;
+    QStackedWidget *stackedWidget;
+
+    QWidget *createDashboardPage();
+    DataVisualizationPage *createDataVisualizationPage();
+    QHBoxLayout *createFilters();
+    QScrollArea *createContent();
+    QFrame *createCard(const QString &title, const QString &style);
+
+    void setupNavigation();
+
+
 };
+
 #endif // MAINWINDOW_H
+
