@@ -14,6 +14,7 @@
 #include "fluorinatedpage.h"
 #include "compliancedashboard.h"
 #include "DatasetInterface.h"
+#include "popspage.h"
 
 // Main application window class
 class DashboardWindow : public QMainWindow {
@@ -44,6 +45,7 @@ DashboardWindow::DashboardWindow(QWidget *parent)
     // Add pages to the stacked widget
     stackedWidget->addWidget(createDashboardPage());
     stackedWidget->addWidget(new Pollutantoverview(this));
+    stackedWidget->addWidget(new PopsPage(this));
     stackedWidget->addWidget(new FluorinatedPage(this));
     stackedWidget->addWidget(new ComplianceDashboard(this));
 
@@ -165,10 +167,12 @@ QFrame *DashboardWindow::createCard(const QString &title, const QString &style) 
     connect(detailsButton, &QPushButton::clicked, this, [this, title]() {
         if (title == "Pollutant Overview") {
             stackedWidget->setCurrentIndex(1); // Navigate to Pollutant Overview page
+        } else if (title == "POPs") {
+            stackedWidget->setCurrentIndex(2);
         } else if (title == "Fluorinated Compounds") {
-            stackedWidget->setCurrentIndex(2); // Navigate to Fluorinated Compounds page
-        } else if (title == "Compliance") {
-            stackedWidget->setCurrentIndex(3); // Navigate to Compliance Overview page
+            stackedWidget->setCurrentIndex(3);
+        }else if (title == "Compliance") {
+            stackedWidget->setCurrentIndex(4); // Navigate to Compliance Overview page
         }
     });
 
@@ -180,7 +184,6 @@ QFrame *DashboardWindow::createCard(const QString &title, const QString &style) 
 
     return card;
 }
-
 
 void DashboardWindow::setupNavigation() {
     QHBoxLayout *navLayout = new QHBoxLayout();
@@ -223,13 +226,16 @@ void DashboardWindow::setupNavigation() {
         stackedWidget->setCurrentIndex(0);
     });
     connect(pollutantOverviewButton, &QPushButton::clicked, this, [=]() {
-        stackedWidget->setCurrentIndex(1);
-    });
-    connect(fluorinatedCompoundsButton, &QPushButton::clicked, this, [=]() {
+       stackedWidget->setCurrentIndex(1);
+   });
+    connect(popsButton, &QPushButton::clicked, this, [=]() {
         stackedWidget->setCurrentIndex(2);
     });
-    connect(complianceOverviewButton, &QPushButton::clicked, this, [=]() {
+    connect(fluorinatedCompoundsButton, &QPushButton::clicked, this, [=]() {
         stackedWidget->setCurrentIndex(3);
+    });
+    connect(complianceOverviewButton, &QPushButton::clicked, this, [=]() {
+        stackedWidget->setCurrentIndex(4);
     });
 
     QWidget *navWidget = new QWidget(this);
