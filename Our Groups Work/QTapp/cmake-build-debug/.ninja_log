@@ -1,0 +1,17 @@
+# ninja log v6
+4	2818	1733946152485059216	dash_autogen/timestamp	8eb327b73256f2bd
+4	2818	1733946152485059216	dash_autogen/mocs_compilation.cpp	8eb327b73256f2bd
+4	2818	1733946152485059216	/Users/mondrgnedi/Desktop/UI/Qtapp/UI-COMP2811/Our Groups Work/QTapp/cmake-build-debug/dash_autogen/timestamp	8eb327b73256f2bd
+4	2818	1733946152485059216	/Users/mondrgnedi/Desktop/UI/Qtapp/UI-COMP2811/Our Groups Work/QTapp/cmake-build-debug/dash_autogen/mocs_compilation.cpp	8eb327b73256f2bd
+2831	5937	1733946152528370876	CMakeFiles/dash.dir/mainwindow.cpp.o	c95312fb121a0b7f
+2832	8245	1733946152529269834	CMakeFiles/dash.dir/datavisualizationpage.cpp.o	64fa71a73779ee9a
+2830	8980	1733946152527619252	CMakeFiles/dash.dir/dash_autogen/mocs_compilation.cpp.o	873abf4aca8d88b5
+2830	9561	1733946152528095960	CMakeFiles/dash.dir/main.cpp.o	ef8a5165865adc2b
+2831	9662	1733946152528712251	CMakeFiles/dash.dir/DatasetInterface.cpp.o	2e43e56fc2501c8d
+2831	9767	1733946152528997792	CMakeFiles/dash.dir/sqlite3.c.o	8ada160716cd48f0
+8981	11678	1733946158678851693	CMakeFiles/dash.dir/Utils.cpp.o	29197be0439bb42a
+9561	14776	1733946159259154638	CMakeFiles/dash.dir/compliancedashboard.cpp.o	5b1193e7d71fa81f
+9663	15303	1733946159360471985	CMakeFiles/dash.dir/popspage.cpp.o	859ac4d6dce269f0
+5946	15361	1733946155643984949	CMakeFiles/dash.dir/pollutantoverview.cpp.o	5938159f108f3eb6
+8247	16101	1733946157944285918	CMakeFiles/dash.dir/fluorinatedpage.cpp.o	775a544f4416560c
+16102	16279	1733946165799268402	dash.app/Contents/MacOS/dash	d78363126d4d7732

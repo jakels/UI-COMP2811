@@ -216,16 +216,43 @@ void Pollutantoverview::showPollutantDetails(int row, int column) {
     QString pollutant = table->item(row, 0)->text();
     QString level = table->item(row, 1)->text();
     QString status = table->item(row, 2)->text();
-    QString description = table->item(row, 0)->toolTip();
+    QString description;
+
+    // Generate dynamic description based on status
+    if (status == "Safe") {
+        description = "The pollutant level is within the safe threshold, posing minimal or no risk to health.";
+    } else if (status == "Caution") {
+        description = "The pollutant level is nearing the upper limit of safety. Monitoring and caution are advised.";
+    } else if (status == "Danger") {
+        description = "The pollutant level exceeds the safe threshold, posing significant health and environmental risks.";
+    } else {
+        description = "No specific information available for this status. Please review the pollutant details.";
+    }
+
+    // Update chart data dynamically
     updateChartData(pollutant.toStdString());
 
-    QString message = QString("Pollutant: %1\nLevel: %2 ppm\nStatus: %3\n\nDescription: %4")
+    // Check for data existence and avoid out-of-bounds issues
+    std::string determinandDefinition;
+    auto chemicalEntries = DB_GetEntriesByChemical(pollutant.toStdString());
+    if (!chemicalEntries.empty()) {
+        determinandDefinition = chemicalEntries[0].determinandDefinition;
+    } else {
+        determinandDefinition = "No additional details available for this pollutant.";
+    }
+
+    // Construct the message
+    QString message = QString("Pollutant: %1\nLevel: %2 ppm\nStatus: %3\n\nDescription: %4\n\nDetails: %5")
                           .arg(pollutant)
                           .arg(level)
                           .arg(status)
-                          .arg(DB_GetEntriesByChemical(pollutant.toStdString())[0].determinandDefinition.c_str());
+                          .arg(description)
+                          .arg(QString::fromStdString(determinandDefinition));
 
+    // Set the target chemical for further use
     targetChemical = pollutant.toStdString();
+
+    // Display the message
     QMessageBox::information(this, "Pollutant Details", message);
 }
 
@@ -239,8 +266,7 @@ void Pollutantoverview::showChartDataTooltip(const QPointF &point, bool state) {
     }
 }
 
-void Pollutantoverview::updateChartData(std::string chemName)
-{
+void Pollutantoverview::updateChartData(std::string chemName) {
     // Clear old data
     series->clear();
 

@@ -24,7 +24,7 @@ elseif(APPLE)
 endif()
 
 # Find required Qt packages
-# Note: We now include the Charts component as well
+
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Charts)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Charts)
 

@@ -102,6 +102,19 @@ void ComplianceDashboard::displaySummaryCards(const std::vector<MockSample> &sam
     {
         QFrame *card = new QFrame(this);
         card->setFrameShape(QFrame::StyledPanel);
+
+        // Determine background color based on status
+        QString cardColor;
+        if (sample.status == "Safe") {
+            cardColor = "#2ECC71"; // Green for safe
+        } else if (sample.status == "Caution") {
+            cardColor = "#F39C12"; // Amber for caution
+        } else if (sample.status == "Danger") {
+            cardColor = "#E74C3C"; // Red for danger
+        } else {
+            cardColor = "#95A5A6"; // Default color (gray) for undefined
+        }
+
         card->setStyleSheet(QString(R"(
             QFrame {
                 border-radius: 10px;
@@ -110,7 +123,7 @@ void ComplianceDashboard::displaySummaryCards(const std::vector<MockSample> &sam
                 color: white;
                 box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
             }
-        )").arg(sample.status == "Safe" ? "#2ECC71" : "#E74C3C"));
+        )").arg(cardColor));
 
         card->setMinimumSize(cardWidth, cardHeight);
 
