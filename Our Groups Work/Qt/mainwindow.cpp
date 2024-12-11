@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 
-
 DashboardWindow::DashboardWindow(QWidget *parent)
     : QMainWindow(parent) {
     QWidget *centralWidget = new QWidget(this);
@@ -32,6 +31,7 @@ DashboardWindow::DashboardWindow(QWidget *parent)
     centralWidget->setLayout(mainLayout);
 
     setupNavigation();
+    configureTabOrder();
 }
 
 QWidget *DashboardWindow::createDashboardPage() {
@@ -43,10 +43,6 @@ QWidget *DashboardWindow::createDashboardPage() {
     layout->addStretch();
 
     return dashboardPage;
-}
-
-DataVisualizationPage *DashboardWindow::createDataVisualizationPage() {
-    return new DataVisualizationPage(this);
 }
 
 QHBoxLayout *DashboardWindow::createFilters() {
@@ -237,7 +233,7 @@ void DashboardWindow::setupNavigation() {
     fluorinatedCompoundsButton->setStyleSheet(buttonStyle);
     complianceOverviewButton->setStyleSheet(buttonStyle);
 
-     QComboBox *languageSelector = new QComboBox();
+    QComboBox *languageSelector = new QComboBox();
     languageSelector->addItems({"Arabic", "French", "English", "Mandarin"});
     languageSelector->setStyleSheet("padding: 5px; font-size: 14px; color: #333;");
 
@@ -262,8 +258,62 @@ void DashboardWindow::setupNavigation() {
     mainLayout->insertWidget(0, navWidget);
 }
 
+void DashboardWindow::configureTabOrder() {
+    // Get references to the widgets using their object names or explicit pointers
+    QPushButton *dashboardButton = findChild<QPushButton *>("Dashboard");
+    QPushButton *pollutantOverviewButton = findChild<QPushButton *>("Pollutant Overview");
+    QPushButton *popsButton = findChild<QPushButton *>("POPs");
+    QPushButton *fluorinatedCompoundsButton = findChild<QPushButton *>("Fluorinated Compounds");
+    QPushButton *complianceOverviewButton = findChild<QPushButton *>("Compliance Overview");
+    QComboBox *languageSelector = findChild<QComboBox *>();
+    QPushButton *applyFilterButton = findChild<QPushButton *>("Apply Filters");
+
+    // Ensure all widgets exist before setting the tab order
+    if (dashboardButton && pollutantOverviewButton && popsButton &&
+        fluorinatedCompoundsButton && complianceOverviewButton &&
+        languageSelector && applyFilterButton) {
+        setTabOrder(dashboardButton, pollutantOverviewButton);
+        setTabOrder(pollutantOverviewButton, popsButton);
+        setTabOrder(popsButton, fluorinatedCompoundsButton);
+        setTabOrder(fluorinatedCompoundsButton, complianceOverviewButton);
+        setTabOrder(complianceOverviewButton, languageSelector);
+        setTabOrder(languageSelector, applyFilterButton);
+        } else {
+            qDebug() << "One or more widgets not found for setting tab order.";
+        }
+}
+
+void DashboardWindow::keyPressEvent(QKeyEvent *event) {
+    switch (event->key()) {
+        case Qt::Key_Left:
+            qDebug() << "Left arrow pressed - navigating backward";
+        focusPreviousChild(); // Navigate to the previous widget
+        break;
+        case Qt::Key_Right:
+            qDebug() << "Right arrow pressed - navigating forward";
+        focusNextChild(); // Navigate to the next widget
+        break;
+        case Qt::Key_Enter:
+        case Qt::Key_Return:
+            qDebug() << "Enter or Return pressed";
+        if (QPushButton *button = qobject_cast<QPushButton *>(QApplication::focusWidget())) {
+            button->click(); // Trigger focused button action
+        }
+        break;
+        case Qt::Key_Escape:
+            qDebug() << "Escape pressed - closing application";
+        close(); // Exit the application
+        break;
+        default:
+            QMainWindow::keyPressEvent(event); // Default handling
+    }
+}
+
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
+
+    qApp->setStyleSheet("QWidget:focus { border: 2px solid #3498db; outline: none; }");
+
     DB_Initialise();
 
     DashboardWindow window;
@@ -273,3 +323,4 @@ int main(int argc, char *argv[]) {
 
     return app.exec();
 }
+

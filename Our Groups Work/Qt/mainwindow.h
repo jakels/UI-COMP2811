@@ -10,10 +10,10 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QComboBox>
+#include <QShortcut>
 #include <QFrame>
+#include <QKeyEvent>
 #include <QDebug>
-#include <QTranslator>
-
 #include "datavisualizationpage.h"
 #include "pollutantoverview.h"
 #include "fluorinatedpage.h"
@@ -21,12 +21,14 @@
 #include "DatasetInterface.h"
 #include "popspage.h"
 
-// Main application window class
 class DashboardWindow : public QMainWindow {
     Q_OBJECT
 
 public:
     explicit DashboardWindow(QWidget *parent = nullptr);
+
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
 
 private:
     QStackedWidget *stackedWidget;
@@ -38,9 +40,7 @@ private:
     QFrame *createCard(const QString &title, const QString &style);
 
     void setupNavigation();
-
-
+    void configureTabOrder();
 };
 
 #endif // MAINWINDOW_H
-

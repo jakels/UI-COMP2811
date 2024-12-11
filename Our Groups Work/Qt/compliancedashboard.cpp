@@ -129,8 +129,8 @@ void ComplianceDashboard::displaySummaryCards(const std::vector<MockSample> &sam
 
         QVBoxLayout *cardLayout = new QVBoxLayout(card);
 
-        // Pollutant Name
-        QLabel *pollutantLabel = new QLabel(QString::fromStdString(sample.pollutant), card);
+        // Pollutant Level
+        QLabel *pollutantLabel = new QLabel("Pollutant Level: " +QString::fromStdString(sample.pollutant), card);
         pollutantLabel->setStyleSheet("font-size: 18px; font-weight: bold; color: white; margin-bottom: 12px;");
         pollutantLabel->setAlignment(Qt::AlignCenter);
         cardLayout->addWidget(pollutantLabel);
