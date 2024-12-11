@@ -226,7 +226,7 @@ void PopsPage::loadPopData(const std::string &filter)
             }
         }
 
-        updateChart(filteredSamples);
+        updateChart(OrderSamplesByDate(filteredSamples));
 
     } catch (const std::exception &e) {
         QMessageBox::critical(this, "Error", QString("Failed to load data: %1").arg(e.what()));
