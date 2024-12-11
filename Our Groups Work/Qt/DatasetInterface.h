@@ -27,8 +27,8 @@ public:
     std::string samplingPointNorthing;
     std::vector<std::string> headers;
     std::vector<std::string> rawRow;
-    int safeMax;
-    int cautionMax;
+    double safeMax;
+    double cautionMax;
 
     // Function to print the sample's details
     void print() const;
@@ -47,7 +47,7 @@ int NumberOfSafeEntries(std::vector<WaterQualitySample> samples);
 int NumberOfCautionEntries(std::vector<WaterQualitySample> samples);
 int NumberOfDangerEntries(std::vector<WaterQualitySample> samples);
 int NumberOfEntriesWithLevelType(std::vector<WaterQualitySample> samples, std::string level);
-
+std::string SAMPLE_GetSafetyLevel(WaterQualitySample sample);
 
 // Function to debug the csv
 int DB_GetEntriesByChemicalAndLeastResult(std::vector<WaterQualitySample> data, std::string determinand);

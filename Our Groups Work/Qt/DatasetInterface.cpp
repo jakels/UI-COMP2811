@@ -68,6 +68,7 @@ std::vector<WaterQualitySample> DB_GetAllEntries(const std::string& filePath)
 {
     std::vector<WaterQualitySample> samples;
     csv::CSVReader reader(filePath);
+    std::vector<std::string> chemicals;
 
     int i = 0;
     int counter = 0;
@@ -100,12 +101,20 @@ std::vector<WaterQualitySample> DB_GetAllEntries(const std::string& filePath)
         sample.samplingPointNorthing = row["sample.samplingPoint.northing"].get<>();
         sample.headers = reader.get_col_names();
         sample.rawRow = row;
+        sample.safeMax = 0.001;
+        sample.cautionMax = 0.002;
+
+        if(std::find(chemicals.begin(), chemicals.end(), sample.determinandLabel) != chemicals.end()) {
+
+        } else {
+            chemicals.push_back(sample.determinandLabel);
+        }
 
         samples.push_back(sample);
         i++;
         counter++;
     }
-    Log("Finished loading samples at " + std::to_string(i));
+    Log("Finished loading samples at " + std::to_string(i) + ", " + std::to_string(chemicals.size()) + " unique chemicals.");
 
     return samples;
 }
@@ -214,7 +223,7 @@ int DB_GetEntriesByChemicalAndLeastResult(std::vector<WaterQualitySample> dataSe
     return minimumRow;
 }
 
-bool CheckSampleThreshold(WaterQualitySample sample, std::string thresholdType)
+bool SAMPLE_CheckSampleThreshold(WaterQualitySample sample, std::string thresholdType)
 {
     if(thresholdType == "Safe")
     {
@@ -230,12 +239,12 @@ bool CheckSampleThreshold(WaterQualitySample sample, std::string thresholdType)
     }
 }
 
-int NumberOfEntriesWithLevelType(std::vector<WaterQualitySample> samples, std::string level)
+int SAMPLES_NumberOfEntriesWithLevelType(std::vector<WaterQualitySample> samples, std::string level)
 {
     int total = 0;
     for(int i = 0; i < samples.size(); i++)
     {
-        if(CheckSampleThreshold(samples[i], level))
+        if(SAMPLE_CheckSampleThreshold(samples[i], level))
         {
             total++;
         }
@@ -244,18 +253,37 @@ int NumberOfEntriesWithLevelType(std::vector<WaterQualitySample> samples, std::s
     return total;
 }
 
-
-int NumberOfSafeEntries(std::vector<WaterQualitySample> samples)
+int SAMPLES_NumberOfSafeEntries(std::vector<WaterQualitySample> samples)
 {
-    return NumberOfEntriesWithLevelType(samples, "Safe");
+    return SAMPLES_NumberOfEntriesWithLevelType(samples, "Safe");
 }
 
-int NumberOfCautionEntries(std::vector<WaterQualitySample> samples)
+int SAMPLES_NumberOfCautionEntries(std::vector<WaterQualitySample> samples)
 {
-    return NumberOfEntriesWithLevelType(samples, "Caution");
+    return SAMPLES_NumberOfEntriesWithLevelType(samples, "Caution");
 }
 
-int NumberOfDangerEntries(std::vector<WaterQualitySample> samples)
+int SAMPLES_NumberOfDangerEntries(std::vector<WaterQualitySample> samples)
 {
-    return NumberOfEntriesWithLevelType(samples, "Danger");
+    return SAMPLES_NumberOfEntriesWithLevelType(samples, "Danger");
+}
+
+std::string SAMPLE_GetSafetyLevel(WaterQualitySample sample)
+{
+    if(SAMPLE_CheckSampleThreshold(sample, "Safe"))
+    {
+        return "Safe";
+    }
+
+    if(SAMPLE_CheckSampleThreshold(sample, "Caution"))
+    {
+        return "Caution";
+    }
+
+    if(SAMPLE_CheckSampleThreshold(sample, "Danger"))
+    {
+        return "Danger";
+    }
+
+    return "NULL";
 }
