@@ -1,14 +1,8 @@
 #include <QApplication>
-#include <QMainWindow>
 #include <QStackedWidget>
-#include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QPushButton>
-#include <QLabel>
-#include <QComboBox>
 #include <QDebug>
 #include <QFrame>
-#include <QScrollArea>
 #include "datavisualizationpage.h"
 #include "pollutantoverview.h"
 #include "fluorinatedpage.h"
@@ -180,14 +174,22 @@ QFrame *DashboardWindow::createCard(const QString &title, const QString &style) 
     QLabel *titleLabel = new QLabel(title);
     titleLabel->setStyleSheet("font-size: 22px; font-weight: bold; color: #2c3e50; text-align: center;");
 
-    QLabel *summaryLabel = new QLabel("Summary Information...");
-    if(title.toStdString() == "Pollutant Overview")
-    {
-        summaryLabel->setText(("Number of safe " + std::to_string(numberOfSafe) + " Number of caution " + std::to_string(numberOfCaution) + " Number of danger " + std::to_string(numberOfDanger)).c_str());
-
+    QLabel *summaryLabel = new QLabel();
+    if (title.toStdString() == "Pollutant Overview") {
+        QString formattedText = QString(
+            "<p style='font-size: 16px; color: #7f8c8d; text-align: center;'>"
+            "<b style='color: green;'>Number of Safe:</b> <span style='color: green;'>%1</span><br>"
+            "<b style='color: orange;'>Number of Caution:</b> <span style='color: orange;'>%2</span><br>"
+            "<b style='color: red;'>Number of Danger:</b> <span style='color: red;'>%3</span>"
+            "</p>"
+        ).arg(numberOfSafe).arg(numberOfCaution).arg(numberOfDanger);
+        summaryLabel->setText(formattedText);
+    } else {
+        summaryLabel->setText("Summary Information...");
     }
     summaryLabel->setStyleSheet("font-size: 16px; color: #7f8c8d; text-align: center;");
     summaryLabel->setWordWrap(true);
+
 
     QPushButton *detailsButton = new QPushButton("View Details");
     detailsButton->setStyleSheet("QPushButton {"
@@ -291,3 +293,4 @@ int main(int argc, char *argv[]) {
 }
 
 #include "main.moc"
+
