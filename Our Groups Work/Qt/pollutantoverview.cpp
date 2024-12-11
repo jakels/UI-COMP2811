@@ -156,10 +156,26 @@ void Pollutantoverview::populateTable()
         }
 
         // Important part, add the data to the lists
-        pollutants.append(sample.determinandLabel.c_str());
-        levels.append(atoi(sample.result.c_str()));
+        auto determinandLabel = sample.determinandLabel.c_str();
+        auto level = atoi(sample.result.c_str());
+        pollutants.append(determinandLabel);
+        levels.append(level);
         // Processing needs to be done on these to determine if safe or not etc
-        statuses.append("Safe");
+        double safeMax = 0.002;
+        double cautionMax = 0.003;
+        double dangerMax = 0.004;
+        if(level < safeMax)
+        {
+            statuses.append("Safe");
+        }
+        else if(level > cautionMax)
+        {
+            statuses.append("Caution");
+        }
+        else if(level > dangerMax)
+        {
+            statuses.append("Danger");
+        }
         riskDescriptions.append("?");
     }
 
