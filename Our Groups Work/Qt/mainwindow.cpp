@@ -213,30 +213,68 @@ QFrame *DashboardWindow::createCard(const QString &title, const QString &style) 
 void DashboardWindow::setupNavigation() {
     QHBoxLayout *navLayout = new QHBoxLayout();
 
+    // Title Label
     QLabel *appTitle = new QLabel("Water Quality Monitor");
-    appTitle->setStyleSheet("font-size: 26px; font-weight: bold; color: #333; padding: 10px;");
+    appTitle->setStyleSheet(
+        "font-size: 26px; "
+        "font-weight: bold; "
+        "color: #2c3e50; "
+        "padding: 10px; "
+        "margin-right: 20px;"
+    );
 
+    // Navigation Buttons
     QPushButton *dashboardButton = new QPushButton("Dashboard");
     QPushButton *pollutantOverviewButton = new QPushButton("Pollutant Overview");
     QPushButton *popsButton = new QPushButton("POPs");
     QPushButton *fluorinatedCompoundsButton = new QPushButton("Fluorinated Compounds");
     QPushButton *complianceOverviewButton = new QPushButton("Compliance Overview");
 
-    QString buttonStyle = "QPushButton {"
-                          "  background-color: #3498db; color: white; border-radius: 15px; "
-                          "  padding: 10px 20px; font-size: 14px; font-weight: bold; }"
-                          "QPushButton:hover { background-color: #2980b9; }"
-                          "QPushButton:pressed { background-color: #1c5a7a; }";
+    QString buttonStyle =
+        "QPushButton {"
+        "  background-color: #3498db; "
+        "  color: white; "
+        "  border-radius: 10px; "
+        "  padding: 10px 20px; "
+        "  font-size: 14px; "
+        "  font-weight: bold; "
+        "  margin: 5px;"
+        "}"
+        "QPushButton:hover { background-color: #2980b9; }"
+        "QPushButton:pressed { background-color: #1c5a7a; }"
+        "QPushButton:focus {"
+        "  border: 2px solid #1abc9c; "
+        "  outline: none;"
+        "}";
+
     dashboardButton->setStyleSheet(buttonStyle);
     pollutantOverviewButton->setStyleSheet(buttonStyle);
     popsButton->setStyleSheet(buttonStyle);
     fluorinatedCompoundsButton->setStyleSheet(buttonStyle);
     complianceOverviewButton->setStyleSheet(buttonStyle);
 
+    // Language Selector
     QComboBox *languageSelector = new QComboBox();
     languageSelector->addItems({"Arabic", "French", "English", "Mandarin"});
-    languageSelector->setStyleSheet("padding: 5px; font-size: 14px; color: #333;");
+    languageSelector->setStyleSheet(
+        "padding: 5px; "
+        "font-size: 14px; "
+        "color: #333; "
+        "border: 1px solid #ccc; "
+        "border-radius: 5px; "
+        "background-color: white; "
+        "margin-left: 20px;"
+    );
 
+    // Set Focus Policies
+    dashboardButton->setFocusPolicy(Qt::StrongFocus);
+    pollutantOverviewButton->setFocusPolicy(Qt::StrongFocus);
+    popsButton->setFocusPolicy(Qt::StrongFocus);
+    fluorinatedCompoundsButton->setFocusPolicy(Qt::StrongFocus);
+    complianceOverviewButton->setFocusPolicy(Qt::StrongFocus);
+    languageSelector->setFocusPolicy(Qt::StrongFocus);
+
+    // Add widgets to the navigation layout
     navLayout->addWidget(appTitle);
     navLayout->addWidget(dashboardButton);
     navLayout->addWidget(pollutantOverviewButton);
@@ -245,17 +283,57 @@ void DashboardWindow::setupNavigation() {
     navLayout->addWidget(complianceOverviewButton);
     navLayout->addWidget(languageSelector);
 
+    // Connect buttons to page switches
     connect(dashboardButton, &QPushButton::clicked, this, [=]() { stackedWidget->setCurrentIndex(0); });
     connect(pollutantOverviewButton, &QPushButton::clicked, this, [=]() { stackedWidget->setCurrentIndex(1); });
     connect(popsButton, &QPushButton::clicked, this, [=]() { stackedWidget->setCurrentIndex(2); });
     connect(fluorinatedCompoundsButton, &QPushButton::clicked, this, [=]() { stackedWidget->setCurrentIndex(3); });
     connect(complianceOverviewButton, &QPushButton::clicked, this, [=]() { stackedWidget->setCurrentIndex(4); });
 
+    // Create a navigation widget and set its layout
     QWidget *navWidget = new QWidget(this);
     navWidget->setLayout(navLayout);
+    navWidget->setStyleSheet(
+        "background-color: #ecf0f1; "
+        "border-bottom: 2px solid #bdc3c7;"
+    );
 
+    // Insert navigation widget into the main layout
     QVBoxLayout *mainLayout = qobject_cast<QVBoxLayout *>(centralWidget()->layout());
     mainLayout->insertWidget(0, navWidget);
+
+    // Add Footer
+    QHBoxLayout *footerLayout = new QHBoxLayout();
+
+    QLabel *userGuideLink = new QLabel("<a href='https://example.com/user-guide'>User Guide</a>");
+    userGuideLink->setStyleSheet("font-size: 14px; color: #3498db;");
+    userGuideLink->setTextFormat(Qt::RichText);
+    userGuideLink->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    userGuideLink->setOpenExternalLinks(true);
+
+    QLabel *helpResourcesLink = new QLabel("<a href='https://example.com/help-resources'>Help Resources</a>");
+    helpResourcesLink->setStyleSheet("font-size: 14px; color: #3498db;");
+    helpResourcesLink->setTextFormat(Qt::RichText);
+    helpResourcesLink->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    helpResourcesLink->setOpenExternalLinks(true);
+
+    QLabel *creditsLink = new QLabel("<a href='https://example.com/credits'>Credits</a>");
+    creditsLink->setStyleSheet("font-size: 14px; color: #3498db;");
+    creditsLink->setTextFormat(Qt::RichText);
+    creditsLink->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    creditsLink->setOpenExternalLinks(true);
+
+    footerLayout->addWidget(userGuideLink);
+    footerLayout->addSpacing(10);
+    footerLayout->addWidget(helpResourcesLink);
+    footerLayout->addSpacing(10);
+    footerLayout->addWidget(creditsLink);
+    footerLayout->addStretch();
+
+    QWidget *footerWidget = new QWidget(this);
+    footerWidget->setLayout(footerLayout);
+
+    mainLayout->addWidget(footerWidget);
 }
 
 void DashboardWindow::configureTabOrder() {
@@ -323,4 +401,3 @@ int main(int argc, char *argv[]) {
 
     return app.exec();
 }
-
