@@ -17,7 +17,7 @@ private:
     QLineEdit *searchBar;
     QPushButton *searchButton;
     QTableWidget *table;
-    QChartView *createChart();  // Corrected return type
+    QChartView *createChart();
     QTableWidget *createComplianceTable();
     void populateTable();
     void setupSearchFunction();

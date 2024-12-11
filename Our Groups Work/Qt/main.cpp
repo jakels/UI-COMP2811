@@ -14,6 +14,7 @@
 #include "fluorinatedpage.h"
 #include "compliancedashboard.h"
 #include "DatasetInterface.h"
+#include "popspage.h"
 
 // Main application window class
 class DashboardWindow : public QMainWindow {
@@ -43,11 +44,34 @@ DashboardWindow::DashboardWindow(QWidget *parent)
 
     // Add pages to the stacked widget
     stackedWidget->addWidget(createDashboardPage());
-    stackedWidget->addWidget(createDataVisualizationPage());
     stackedWidget->addWidget(new Pollutantoverview(this));
+    stackedWidget->addWidget(new PopsPage(this));
     stackedWidget->addWidget(new FluorinatedPage(this));
     stackedWidget->addWidget(new ComplianceDashboard(this));
 
+    // Dynamically update the window title based on the current page
+    connect(stackedWidget, &QStackedWidget::currentChanged, this, [=](int index) {
+        switch (index) {
+            case 0:
+                setWindowTitle("Dashboard");
+                break;
+            case 1:
+                setWindowTitle("Pollutant Overview");
+                break;
+            case 2:
+                setWindowTitle("POPs");
+                break;
+            case 3:
+                setWindowTitle("Fluorinated Compounds");
+                break;
+            case 4:
+                setWindowTitle("Compliance Overview");
+                break;
+            default:
+                setWindowTitle("Water Quality Monitor");
+                break;
+        }
+    });
     // Main layout for the central widget
     QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
     mainLayout->addWidget(stackedWidget);
@@ -175,10 +199,12 @@ QFrame *DashboardWindow::createCard(const QString &title, const QString &style) 
     // Connect the "View Details" button to the relevant page
     connect(detailsButton, &QPushButton::clicked, this, [this, title]() {
         if (title == "Pollutant Overview") {
-            stackedWidget->setCurrentIndex(2); // Navigate to Pollutant Overview page
+            stackedWidget->setCurrentIndex(1); // Navigate to Pollutant Overview page
+        } else if (title == "POPs") {
+            stackedWidget->setCurrentIndex(2);
         } else if (title == "Fluorinated Compounds") {
-            stackedWidget->setCurrentIndex(3); // Navigate to Fluorinated Compounds page
-        } else if (title == "Compliance") {
+            stackedWidget->setCurrentIndex(3);
+        }else if (title == "Compliance") {
             stackedWidget->setCurrentIndex(4); // Navigate to Compliance Overview page
         }
     });
@@ -192,7 +218,6 @@ QFrame *DashboardWindow::createCard(const QString &title, const QString &style) 
     return card;
 }
 
-
 void DashboardWindow::setupNavigation() {
     QHBoxLayout *navLayout = new QHBoxLayout();
 
@@ -204,7 +229,6 @@ void DashboardWindow::setupNavigation() {
     QPushButton *popsButton = new QPushButton("POPs");
     QPushButton *fluorinatedCompoundsButton = new QPushButton("Fluorinated Compounds");
     QPushButton *complianceOverviewButton = new QPushButton("Compliance Overview");
-    QPushButton *dataVisualizationButton = new QPushButton("Data Visualization");
 
     QString buttonStyle = "QPushButton {"
                           "  background-color: #3498db; color: white; border-radius: 15px; "
@@ -216,7 +240,12 @@ void DashboardWindow::setupNavigation() {
     popsButton->setStyleSheet(buttonStyle);
     fluorinatedCompoundsButton->setStyleSheet(buttonStyle);
     complianceOverviewButton->setStyleSheet(buttonStyle);
-    dataVisualizationButton->setStyleSheet(buttonStyle);
+
+
+    QComboBox *languageSelector = new QComboBox();
+    languageSelector->addItems({"Arabic", "French", "English", "Mandarin"});
+    languageSelector->setStyleSheet("padding: 5px; font-size: 14px; color: #333;");
+
 
     navLayout->addWidget(appTitle);
     navLayout->addWidget(dashboardButton);
@@ -224,15 +253,15 @@ void DashboardWindow::setupNavigation() {
     navLayout->addWidget(popsButton);
     navLayout->addWidget(fluorinatedCompoundsButton);
     navLayout->addWidget(complianceOverviewButton);
-    navLayout->addWidget(dataVisualizationButton);
+    navLayout->addWidget(languageSelector);
 
     connect(dashboardButton, &QPushButton::clicked, this, [=]() {
         stackedWidget->setCurrentIndex(0);
     });
-    connect(dataVisualizationButton, &QPushButton::clicked, this, [=]() {
-        stackedWidget->setCurrentIndex(1);
-    });
     connect(pollutantOverviewButton, &QPushButton::clicked, this, [=]() {
+       stackedWidget->setCurrentIndex(1);
+   });
+    connect(popsButton, &QPushButton::clicked, this, [=]() {
         stackedWidget->setCurrentIndex(2);
     });
     connect(fluorinatedCompoundsButton, &QPushButton::clicked, this, [=]() {

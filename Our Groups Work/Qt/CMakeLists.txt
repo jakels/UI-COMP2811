@@ -44,6 +44,8 @@ set(PROJECT_SOURCES
         Utils.cpp
         Utils.h
         compliancedashboard.cpp
+        popspage.cpp
+        popspage.h
 )
 
 # Define the executable for Qt 6 or lower
