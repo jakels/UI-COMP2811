@@ -43,7 +43,6 @@ DashboardWindow::DashboardWindow(QWidget *parent)
 
     // Add pages to the stacked widget
     stackedWidget->addWidget(createDashboardPage());
-    stackedWidget->addWidget(createDataVisualizationPage());
     stackedWidget->addWidget(new Pollutantoverview(this));
     stackedWidget->addWidget(new FluorinatedPage(this));
     stackedWidget->addWidget(new ComplianceDashboard(this));
@@ -165,11 +164,11 @@ QFrame *DashboardWindow::createCard(const QString &title, const QString &style) 
     // Connect the "View Details" button to the relevant page
     connect(detailsButton, &QPushButton::clicked, this, [this, title]() {
         if (title == "Pollutant Overview") {
-            stackedWidget->setCurrentIndex(2); // Navigate to Pollutant Overview page
+            stackedWidget->setCurrentIndex(1); // Navigate to Pollutant Overview page
         } else if (title == "Fluorinated Compounds") {
-            stackedWidget->setCurrentIndex(3); // Navigate to Fluorinated Compounds page
+            stackedWidget->setCurrentIndex(2); // Navigate to Fluorinated Compounds page
         } else if (title == "Compliance") {
-            stackedWidget->setCurrentIndex(4); // Navigate to Compliance Overview page
+            stackedWidget->setCurrentIndex(3); // Navigate to Compliance Overview page
         }
     });
 
@@ -194,7 +193,6 @@ void DashboardWindow::setupNavigation() {
     QPushButton *popsButton = new QPushButton("POPs");
     QPushButton *fluorinatedCompoundsButton = new QPushButton("Fluorinated Compounds");
     QPushButton *complianceOverviewButton = new QPushButton("Compliance Overview");
-    QPushButton *dataVisualizationButton = new QPushButton("Data Visualization");
 
     QString buttonStyle = "QPushButton {"
                           "  background-color: #3498db; color: white; border-radius: 15px; "
@@ -206,7 +204,12 @@ void DashboardWindow::setupNavigation() {
     popsButton->setStyleSheet(buttonStyle);
     fluorinatedCompoundsButton->setStyleSheet(buttonStyle);
     complianceOverviewButton->setStyleSheet(buttonStyle);
-    dataVisualizationButton->setStyleSheet(buttonStyle);
+
+
+    QComboBox *languageSelector = new QComboBox();
+    languageSelector->addItems({"Arabic", "French", "English", "Mandarin"});
+    languageSelector->setStyleSheet("padding: 5px; font-size: 14px; color: #333;");
+
 
     navLayout->addWidget(appTitle);
     navLayout->addWidget(dashboardButton);
@@ -214,22 +217,19 @@ void DashboardWindow::setupNavigation() {
     navLayout->addWidget(popsButton);
     navLayout->addWidget(fluorinatedCompoundsButton);
     navLayout->addWidget(complianceOverviewButton);
-    navLayout->addWidget(dataVisualizationButton);
+    navLayout->addWidget(languageSelector);
 
     connect(dashboardButton, &QPushButton::clicked, this, [=]() {
         stackedWidget->setCurrentIndex(0);
     });
-    connect(dataVisualizationButton, &QPushButton::clicked, this, [=]() {
+    connect(pollutantOverviewButton, &QPushButton::clicked, this, [=]() {
         stackedWidget->setCurrentIndex(1);
     });
-    connect(pollutantOverviewButton, &QPushButton::clicked, this, [=]() {
+    connect(fluorinatedCompoundsButton, &QPushButton::clicked, this, [=]() {
         stackedWidget->setCurrentIndex(2);
     });
-    connect(fluorinatedCompoundsButton, &QPushButton::clicked, this, [=]() {
-        stackedWidget->setCurrentIndex(3);
-    });
     connect(complianceOverviewButton, &QPushButton::clicked, this, [=]() {
-        stackedWidget->setCurrentIndex(4);
+        stackedWidget->setCurrentIndex(3);
     });
 
     QWidget *navWidget = new QWidget(this);
