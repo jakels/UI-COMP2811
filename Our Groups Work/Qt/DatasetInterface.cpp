@@ -173,8 +173,6 @@ std::vector<WaterQualitySample> DB_GetEntriesByChemical(const std::string& chemi
     return samples;
 }
 
-
-
 std::vector<WaterQualitySample> DB_GetEntriesByChemicalAndLocation(const std::string& chemical, const std::string& location)
 {
     Log("Getting all entries with location of " + location + " and chemical of " + chemical);
@@ -216,61 +214,48 @@ int DB_GetEntriesByChemicalAndLeastResult(std::vector<WaterQualitySample> dataSe
     return minimumRow;
 }
 
-int SQLCreateDatabase(std::string filename)
+bool CheckSampleThreshold(WaterQualitySample sample, std::string thresholdType)
 {
-    sqlite3 *db;
-    char *errMsg = nullptr;
+    if(thresholdType == "Safe")
+    {
+        return atof(sample.result.c_str()) < sample.safeMax;
+    }
+    else if(thresholdType == "Caution")
+    {
+        return atof(sample.result.c_str()) < sample.cautionMax;
+    }
+    else if (thresholdType == "Danger")
+    {
+        return atof(sample.result.c_str()) > sample.cautionMax;
+    }
+}
 
-    // Open or create a database file
-    int exitCode = sqlite3_open(filename.c_str(), &db);
-
-    if (exitCode) {
-        // If opening the database failed
-        fprintf(stderr, "Error opening database: %s\n", sqlite3_errmsg(db));
-        return 1;
-    } else {
-        // If the database was opened successfully
-        printf("Database created/opened successfully.\n");
+int NumberOfEntriesWithLevelType(std::vector<WaterQualitySample> samples, std::string level)
+{
+    int total = 0;
+    for(int i = 0; i < samples.size(); i++)
+    {
+        if(CheckSampleThreshold(samples[i], level))
+        {
+            total++;
+        }
     }
 
-    // SQL statement to create the table
-    const char *createTableSQL = R"(
-        CREATE TABLE IF NOT EXISTS WaterQuality (
-            id TEXT PRIMARY KEY,
-            samplingPoint TEXT,
-            samplingPointNotation TEXT,
-            samplingPointLabel TEXT,
-            sampleDateTime TEXT,
-            determinandLabel TEXT,
-            determinandDefinition TEXT,
-            determinandNotation TEXT,
-            resultQualifierNotation TEXT,
-            result REAL,
-            codedResultInterpretation TEXT,
-            determinandUnitLabel TEXT,
-            sampledMaterialTypeLabel TEXT,
-            isComplianceSample TEXT,
-            purposeLabel TEXT,
-            samplingPointEasting INTEGER,
-            samplingPointNorthing INTEGER
-        );
-    )";
-
-    // Execute the SQL statement
-    exitCode = sqlite3_exec(db, createTableSQL, nullptr, nullptr, &errMsg);
-
-    if (exitCode != SQLITE_OK) {
-        // If the table creation failed
-        fprintf(stderr, "Error creating table: %s\n", errMsg);
-        sqlite3_free(errMsg);
-    } else {
-        // If the table was created successfully
-        printf("Table created successfully.\n");
-    }
-
-    // Close the database connection
-    sqlite3_close(db);
-    return 0;
+    return total;
 }
 
 
+int NumberOfSafeEntries(std::vector<WaterQualitySample> samples)
+{
+    return NumberOfEntriesWithLevelType(samples, "Safe");
+}
+
+int NumberOfCautionEntries(std::vector<WaterQualitySample> samples)
+{
+    return NumberOfEntriesWithLevelType(samples, "Caution");
+}
+
+int NumberOfDangerEntries(std::vector<WaterQualitySample> samples)
+{
+    return NumberOfEntriesWithLevelType(samples, "Danger");
+}
