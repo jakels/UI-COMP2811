@@ -1,4 +1,4 @@
-#include "popspage.h" 
+#include "popspage.h"
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QPushButton>
@@ -20,8 +20,12 @@
 
 PopsPage::PopsPage(QWidget *parent) : QWidget(parent)
 {
+
+
     // 创建主布局
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
+
+
 
     // ===== 信息显示部分 =====
     infoLabel = new QLabel("Please select a pollutant to load data", this);
@@ -331,3 +335,4 @@ void PopsPage::showRowDetails(int row, int column)
             .arg(safeStatus)
     );
 }
+

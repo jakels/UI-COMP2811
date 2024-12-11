@@ -49,6 +49,29 @@ DashboardWindow::DashboardWindow(QWidget *parent)
     stackedWidget->addWidget(new FluorinatedPage(this));
     stackedWidget->addWidget(new ComplianceDashboard(this));
 
+    // Dynamically update the window title based on the current page
+    connect(stackedWidget, &QStackedWidget::currentChanged, this, [=](int index) {
+        switch (index) {
+            case 0:
+                setWindowTitle("Dashboard");
+                break;
+            case 1:
+                setWindowTitle("Pollutant Overview");
+                break;
+            case 2:
+                setWindowTitle("POPs");
+                break;
+            case 3:
+                setWindowTitle("Fluorinated Compounds");
+                break;
+            case 4:
+                setWindowTitle("Compliance Overview");
+                break;
+            default:
+                setWindowTitle("Water Quality Monitor");
+                break;
+        }
+    });
     // Main layout for the central widget
     QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
     mainLayout->addWidget(stackedWidget);
