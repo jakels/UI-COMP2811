@@ -8,6 +8,13 @@
 #include <QFrame>
 #include <QMessageBox>
 #include <QResizeEvent>
+#include <QPushButton>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QScrollArea>
+#include <QMessageBox>
+#include <QFrame>
 
 ComplianceDashboard::ComplianceDashboard(QWidget *parent)
     : QWidget(parent), cardWidth(300), cardHeight(300) // Updated card dimensions
@@ -269,3 +276,4 @@ void ComplianceDashboard::applyFilters()
         QMessageBox::information(this, "No Results", "No data matches the selected filters.");
     }
 }
+
