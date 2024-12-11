@@ -8,6 +8,13 @@
 #include <QFrame>
 #include <QMessageBox>
 #include <QResizeEvent>
+#include <QPushButton>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QScrollArea>
+#include <QMessageBox>
+#include <QFrame>
 
 ComplianceDashboard::ComplianceDashboard(QWidget *parent)
     : QWidget(parent), cardWidth(300), cardHeight(300) // Updated card dimensions
@@ -61,6 +68,52 @@ ComplianceDashboard::ComplianceDashboard(QWidget *parent)
     // Mock data setup
     mockData = {
         {"Location A", "Pollutant X", "Compliant"},
+        {"Location B", "Pollutant Y", "Non-Compliant"},
+        {"Location C", "Pollutant Z", "Compliant"},
+        {"Location D", "Pollutant W", "Non-Compliant"},
+        {"Location E", "Pollutant V", "Compliant"},
+        {"Location F", "Pollutant U", "Non-Compliant"},
+        {"Location A", "Pollutant X", "Compliant"},
+        {"Location B", "Pollutant Y", "Non-Compliant"},
+        {"Location C", "Pollutant Z", "Compliant"},
+        {"Location D", "Pollutant W", "Non-Compliant"},
+        {"Location E", "Pollutant V", "Compliant"},
+        {"Location F", "Pollutant U", "Non-Compliant"},
+        {"Location A", "Pollutant X", "Compliant"},
+        {"Location B", "Pollutant Y", "Non-Compliant"},
+        {"Location C", "Pollutant Z", "Compliant"},
+        {"Location D", "Pollutant W", "Non-Compliant"},
+        {"Location E", "Pollutant V", "Compliant"},
+        {"Location F", "Pollutant U", "Non-Compliant"},
+        {"Location A", "Pollutant X", "Compliant"},
+        {"Location B", "Pollutant Y", "Non-Compliant"},
+        {"Location C", "Pollutant Z", "Compliant"},
+        {"Location D", "Pollutant W", "Non-Compliant"},
+        {"Location E", "Pollutant V", "Compliant"},
+        {"Location F", "Pollutant U", "Non-Compliant"},
+        {"Location B", "Pollutant Y", "Non-Compliant"},
+        {"Location C", "Pollutant Z", "Compliant"},
+        {"Location D", "Pollutant W", "Non-Compliant"},
+        {"Location E", "Pollutant V", "Compliant"},
+        {"Location F", "Pollutant U", "Non-Compliant"},
+        {"Location A", "Pollutant X", "Compliant"},
+        {"Location B", "Pollutant Y", "Non-Compliant"},
+        {"Location C", "Pollutant Z", "Compliant"},
+        {"Location D", "Pollutant W", "Non-Compliant"},
+        {"Location E", "Pollutant V", "Compliant"},
+        {"Location F", "Pollutant U", "Non-Compliant"},
+        {"Location A", "Pollutant X", "Compliant"},
+        {"Location B", "Pollutant Y", "Non-Compliant"},
+        {"Location C", "Pollutant Z", "Compliant"},
+        {"Location D", "Pollutant W", "Non-Compliant"},
+        {"Location E", "Pollutant V", "Compliant"},
+        {"Location F", "Pollutant U", "Non-Compliant"},
+        {"Location A", "Pollutant X", "Compliant"},
+        {"Location B", "Pollutant Y", "Non-Compliant"},
+        {"Location C", "Pollutant Z", "Compliant"},
+        {"Location D", "Pollutant W", "Non-Compliant"},
+        {"Location E", "Pollutant V", "Compliant"},
+        {"Location F", "Pollutant U", "Non-Compliant"},
         {"Location B", "Pollutant Y", "Non-Compliant"},
         {"Location C", "Pollutant Z", "Compliant"},
         {"Location D", "Pollutant W", "Non-Compliant"},
@@ -190,88 +243,6 @@ int ComplianceDashboard::calculateColumns()
     return std::max(1, windowWidth / (cardWidth + 20)); // Ensure at least 1 column
 }
 
-// void ComplianceDashboard::displaySummaryCards(const std::vector<MockSample> &samples)
-// {
-//     // Clear previous cards
-//     while (QLayoutItem *item = cardContainer->takeAt(0))
-//     {
-//         delete item->widget();
-//         delete item;
-//     }
-
-//     int columns = calculateColumns(); // Determine number of columns
-//     int row = 0, col = 0;
-
-//     for (const auto &sample : samples)
-//     {
-//         QFrame *card = new QFrame(this);
-//         card->setFrameShape(QFrame::StyledPanel);
-//         card->setStyleSheet(QString(R"(
-//             QFrame {
-//                 border-radius: 10px;
-//                 padding: 15px;
-//                 background-color: %1;
-//                 color: white;
-//                 box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-//             }
-//         )").arg(sample.status == "Compliant" ? "#2ECC71" : "#E74C3C"));
-
-//         card->setMinimumSize(cardWidth, cardHeight);
-
-//         QVBoxLayout *cardLayout = new QVBoxLayout(card);
-
-//         // Pollutant Name
-//         QLabel *pollutantLabel = new QLabel(QString::fromStdString(sample.pollutant), card);
-//         pollutantLabel->setStyleSheet("font-size: 16px; font-weight: bold; color: white; margin-bottom: 10px;");
-//         pollutantLabel->setAlignment(Qt::AlignCenter);
-//         cardLayout->addWidget(pollutantLabel);
-
-//         // Location
-//         QLabel *locationLabel = new QLabel("Location: " + QString::fromStdString(sample.location), card);
-//         locationLabel->setStyleSheet("font-size: 14px; color: #f0f0f0; margin-bottom: 8px;");
-//         locationLabel->setAlignment(Qt::AlignCenter);
-//         cardLayout->addWidget(locationLabel);
-
-//         // Status
-//         QLabel *statusLabel = new QLabel("Status: " + QString::fromStdString(sample.status), card);
-//         statusLabel->setStyleSheet("font-size: 14px; font-weight: bold; color: white;");
-//         statusLabel->setAlignment(Qt::AlignCenter);
-//         cardLayout->addWidget(statusLabel);
-
-//         // Details Button
-//         QPushButton *detailsButton = new QPushButton("Details", card);
-//         detailsButton->setStyleSheet(R"(
-//             QPushButton {
-//                 background-color: white;
-//                 color: black;
-//                 font-size: 12px;
-//                 padding: 8px;
-//                 border-radius: 5px;
-//                 border: none;
-//             }
-//             QPushButton:hover {
-//                 background-color: #D6DBDF;
-//             }
-//         )");
-//         connect(detailsButton, &QPushButton::clicked, this, [this, sample]() {
-//             showDetails(sample);
-//         });
-//         cardLayout->addWidget(detailsButton);
-
-//         // Add card to grid layout
-//         cardContainer->addWidget(card, row, col);
-
-//         // Update row and column based on the number of columns
-//         col++;
-//         if (col >= columns)
-//         {
-//             col = 0;
-//             row++;
-//         }
-//     }
-// }
-
-
 void ComplianceDashboard::showDetails(const MockSample &sample)
 {
     QMessageBox::information(this, "Details for " + QString::fromStdString(sample.pollutant),
@@ -305,3 +276,4 @@ void ComplianceDashboard::applyFilters()
         QMessageBox::information(this, "No Results", "No data matches the selected filters.");
     }
 }
+

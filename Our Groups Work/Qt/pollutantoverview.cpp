@@ -27,10 +27,28 @@ Pollutantoverview::Pollutantoverview(QWidget *parent)
     searchBar = new QLineEdit(this);
     searchBar->setPlaceholderText("Search pollutants...");
     searchBar->setStyleSheet("padding: 8px; font-size: 14px; border: 1px solid #ccc; border-radius: 5px;");
-    connect(searchBar, &QLineEdit::textChanged, this, &Pollutantoverview::handleSearch);
+
+    // Create a search button
+    searchButton = new QPushButton("Search", this);
+    searchButton->setStyleSheet(
+        "padding: 8px; "
+        "font-size: 14px; "
+        "border: 1px solid #007BFF; "
+        "border-radius: 5px; "
+        "background-color: #007BFF; "
+        "color: white; "
+        "transition: all 0.2s ease-in-out; "
+        "hover: { background-color: #0056b3; transform: scale(1.02); box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2); }"
+    );
+    connect(searchButton, &QPushButton::clicked, this, &Pollutantoverview::handleSearch);
+
+    // Add search bar and button to a horizontal layout
+    QHBoxLayout *searchLayout = new QHBoxLayout();
+    searchLayout->addWidget(searchBar);
+    searchLayout->addWidget(searchButton);
 
     // Add components to layout
-    layout->addWidget(searchBar);
+    layout->addLayout(searchLayout);
     layout->addWidget(createChart());
     layout->addWidget(createComplianceTable());
     setLayout(layout);
@@ -42,33 +60,22 @@ QChartView *Pollutantoverview::createChart() {
     // Create sample data series
     QLineSeries *series = new QLineSeries();
 
-    // Load in data from the back end, get all the samples that had the chemical
+    // Load in data from the backend, get all the samples that had the chemical
     std::vector<WaterQualitySample> query = OrderSamplesByDate(DB_GetEntriesByChemical("Endrin"));
-    // Get the number of samples
     int numberOfSamples = query.size();
-    // Set a variable to hold our maximum result which we will use for scaling axis
     double maximumResult = 0;
 
     // Loop through the samples
-    for(int i = 0; i < numberOfSamples; i++)
-    {
-        // Get the current sample
+    for (int i = 0; i < numberOfSamples; i++) {
         WaterQualitySample sample = query[i];
-        // Get the date of the current sample
         auto sampleDate = sample.sampleDateTime.c_str();
-        // Get the result of the current sample
         double sampleResult = atof(sample.result.c_str());
 
-        // Debugging
-        Log("Sample " + std::to_string(i) + " has date " + sampleDate + " and result " + std::to_string(sampleResult));
-
-        // If the sample result is bigger than max result then set max result to the sample result
-        if(sampleResult > maximumResult)
-        {
+        if (sampleResult > maximumResult) {
             maximumResult = sampleResult;
         }
 
-        // Important part, add the sample data to the chart
+        // Add the sample data to the chart
         series->append(QDateTime::fromString(sampleDate, Qt::ISODate).toMSecsSinceEpoch(), sampleResult);
     }
 
@@ -124,26 +131,17 @@ QTableWidget *Pollutantoverview::createComplianceTable() {
 
 void Pollutantoverview::populateTable()
 {
-    QStringList pollutants = { };
-    QList<int> levels = { };
-    QStringList statuses = { };
-    QStringList riskDescriptions = { };
+    QStringList pollutants;
+    QList<double> levels;
+    QStringList statuses;
+    QStringList riskDescriptions;
 
-    // Load in data from the back end, get all the samples that had the chemical
-    std::vector<WaterQualitySample> query = OrderSamplesByDate(DB_GetEntriesByChemical("Endrin"));
-    // Get the number of samples
+    // Load in data from the backend
+    std::vector<WaterQualitySample> query = OrderSamplesByDate(DB_GetCachedEntries());
     int numberOfSamples = query.size();
-    // Set a variable to hold our maximum result which we will use for scaling axis
-    double maximumResult = 0;
 
-    // Loop through the samples
-    for(int i = 0; i < numberOfSamples; i++)
-    {
-        // Get the current sample
+    for (int i = 0; i < numberOfSamples; i++) {
         WaterQualitySample sample = query[i];
-        // Get the date of the current sample
-        auto sampleDate = sample.sampleDateTime.c_str();
-        // Get the result of the current sample
         double sampleResult = atof(sample.result.c_str());
 
         // Debugging
@@ -183,10 +181,9 @@ void Pollutantoverview::populateTable()
 
     for (int i = 0; i < pollutants.size(); ++i) {
         QTableWidgetItem *pollutantItem = new QTableWidgetItem(pollutants[i]);
-        QTableWidgetItem *levelItem = new QTableWidgetItem(QString::number(levels[i]));
+        QTableWidgetItem *levelItem = new QTableWidgetItem(QString::number(levels[i], 'f', 8));
         QTableWidgetItem *statusItem = new QTableWidgetItem(statuses[i]);
 
-        // Set tooltips with descriptions
         pollutantItem->setToolTip(riskDescriptions[i]);
         levelItem->setToolTip(riskDescriptions[i]);
         statusItem->setToolTip("Status: " + statuses[i] + "\n" + riskDescriptions[i]);
@@ -207,14 +204,14 @@ void Pollutantoverview::populateTable()
 }
 
 void Pollutantoverview::handleSearch() {
-    QString query = searchBar->text().toLower();
+    QString query = searchBar->text().toLower().trimmed();
     qDebug() << "Search triggered for:" << query;
 
     for (int row = 0; row < table->rowCount(); ++row) {
         bool match = false;
         for (int col = 0; col < table->columnCount(); ++col) {
             QTableWidgetItem *item = table->item(row, col);
-            if (item->text().toLower().contains(query)) {
+            if (item && item->text().toLower().contains(query)) {
                 match = true;
                 break;
             }

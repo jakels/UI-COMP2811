@@ -5,6 +5,7 @@
 #include <QtCharts/QChartView>
 #include <QTableWidget>
 #include <QLineEdit>
+#include <QPushButton>
 
 class Pollutantoverview : public QWidget {
     Q_OBJECT
@@ -14,6 +15,7 @@ public:
 
 private:
     QLineEdit *searchBar;
+    QPushButton *searchButton;
     QTableWidget *table;
     QChartView *createChart();  // Corrected return type
     QTableWidget *createComplianceTable();
