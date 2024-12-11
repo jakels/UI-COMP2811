@@ -7,6 +7,18 @@
 #include <QToolTip>
 #include "DatasetInterface.h"
 
+QStringList fluroPollutantTypes = {
+        "Trifluralin",
+        "Fluoroxypyr",
+        "FLUORENE",
+        "Fluoranthene",
+        "Diflurobnzrn",
+        "Fluoride - F",
+        "Fluazifopbut",
+        "Flutriafol",
+        "Cyfluthrin"
+};
+
 FluorinatedPage::FluorinatedPage(QWidget *parent)
     : QMainWindow(parent),
       summaryCardLayout(new QVBoxLayout),
@@ -60,18 +72,7 @@ QWidget *FluorinatedPage::createTypeFilterSection()
     QLabel *filterLabel = new QLabel("Select Type:");
     filterLabel->setStyleSheet("font-size: 16px; font-weight: bold; color: black;");
 
-    QStringList pollutantTypes = {
-            "Trifluralin",
-            "Fluoroxypyr",
-            "FLUORENE",
-            "Fluoranthene",
-            "Diflurobnzrn",
-            "Fluoride - F",
-            "Fluazifopbut",
-            "Flutriafol",
-            "Cyfluthrin"
-    };
-    filterDropdownType->addItems(pollutantTypes);
+    filterDropdownType->addItems(fluroPollutantTypes);
     filterDropdownType->setStyleSheet(
         "QComboBox {"
         "  font-size: 14px; padding: 5px; color: black; background-color: white; border: 1px solid #ccc; border-radius: 5px;"

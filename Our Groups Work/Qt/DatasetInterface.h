@@ -54,9 +54,9 @@ bool SAMPLE_CheckSampleThreshold(WaterQualitySample sample, std::string threshol
 int SAMPLES_NumberOfSafeEntries();
 int SAMPLES_NumberOfCautionEntries();
 int SAMPLES_NumberOfDangerEntries();
-
-
-// Function to debug the csv
+std::vector<WaterQualitySample> DB_GetEntriesAllFluro();
+int SAMPLES_NumberOfSafeFluroEntries();
+int SAMPLES_NumberOfFluroEntries();
 int DB_GetEntriesByChemicalAndLeastResult(std::vector<WaterQualitySample> data, std::string determinand);
 
 

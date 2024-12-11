@@ -14,6 +14,7 @@
 #include "sqlite3.h"
 #include "Utils.h"
 #include <cmath>
+#include "fluorinatedpage.h"
 
 // Global variables
 std::string CSVfilepath = "Water.csv";
@@ -22,6 +23,9 @@ int cachedDatasetSize = 0;
 bool initialised = false;
 std::vector<std::string> uniqueChemicals;
 std::vector<std::string> uniqueLocations;
+std::vector<WaterQualitySample> fluroSamples;
+int fluroEntriesTotal = 0;
+int safeFluroEntriesTotal = 0;
 int safeEntriesTotal = 0;
 int cautionEntriesTotal = 0;
 int dangerEntriesTotal = 0;
@@ -73,6 +77,17 @@ std::vector<WaterQualitySample> DB_GetAllEntries(const std::string& filePath)
 {
     std::vector<WaterQualitySample> samples;
     csv::CSVReader reader(filePath);
+    QStringList fluroPollutantTypes = {
+            "Trifluralin",
+            "Fluoroxypyr",
+            "FLUORENE",
+            "Fluoranthene",
+            "Diflurobnzrn",
+            "Fluoride - F",
+            "Fluazifopbut",
+            "Flutriafol",
+            "Cyfluthrin"
+    };
 
     int maxLoad = 1450000;
     int i = 0;
@@ -132,6 +147,16 @@ std::vector<WaterQualitySample> DB_GetAllEntries(const std::string& filePath)
         if(safetyLevel == "Danger")
         {
             dangerEntriesTotal++;
+        }
+
+        if(fluroPollutantTypes.contains(sample.determinandLabel.c_str()))
+        {
+            fluroEntriesTotal++;
+            fluroSamples.push_back(sample);
+            if(SAMPLE_GetSafetyLevel(sample) == "Safe")
+            {
+                safeFluroEntriesTotal++;
+            }
         }
 
         samples.push_back(sample);
@@ -324,3 +349,17 @@ std::vector<std::string> DB_UniqueChemicals()
     return uniqueChemicals;
 }
 
+std::vector<WaterQualitySample> DB_GetEntriesAllFluro()
+{
+    return fluroSamples;
+}
+
+int SAMPLES_NumberOfSafeFluroEntries()
+{
+    return safeFluroEntriesTotal;
+}
+
+int SAMPLES_NumberOfFluroEntries()
+{
+    return fluroEntriesTotal;
+}

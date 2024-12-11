@@ -161,6 +161,7 @@ QFrame *DashboardWindow::createCard(const QString &title, const QString &style) 
     int numberOfSafe = SAMPLES_NumberOfSafeEntries();
     int numberOfCaution = SAMPLES_NumberOfCautionEntries();
     int numberOfDanger = SAMPLES_NumberOfDangerEntries();
+    int numberOfSafeFluroEntries = SAMPLES_NumberOfSafeFluroEntries();
 
 
     QFrame *card = new QFrame();
@@ -184,8 +185,41 @@ QFrame *DashboardWindow::createCard(const QString &title, const QString &style) 
             "</p>"
         ).arg(numberOfSafe).arg(numberOfCaution).arg(numberOfDanger);
         summaryLabel->setText(formattedText);
-    } else {
-        summaryLabel->setText("Summary Information...");
+    }
+    if(title.toStdString() == "Fluorinated Compounds")
+    {
+        std::string status = "<b style='color: green;'>Status:</b> <span style='color: green;'>Above compliance threshold</span><br>";
+        double percentage = ((double)numberOfSafeFluroEntries/(double)SAMPLES_NumberOfFluroEntries()) * (double)100;
+        if(percentage < (double)90)
+        {
+            status = "<b style='color: red;'>Status:</b> <span style='color: red;'>Below compliance threshold</span><br>";
+        }
+        QString formattedText = QString(
+                "<p style='font-size: 16px; color: #7f8c8d; text-align: center;'>"
+                "<b style='color: green;'>Number of Safe Fluro-Samples:</b> <span style='color: green;'>%1</span><br>"
+                "<b style='color: grey;'>Safety rate:</b> <span style='color: grey;'>%2 p.c</span><br>"
+                "%3"
+                "</p>"
+        ).arg(numberOfSafeFluroEntries).arg(percentage).arg(status.c_str());
+        summaryLabel->setText(formattedText);
+    }
+    if(title.toStdString() == "POPs")
+    {
+        QString formattedText = QString(
+                "<p style='font-size: 16px; color: #7f8c8d; text-align: center;'>"
+                "<b style='color: green;'>Number of Safe:</b> <span style='color: green;'>Waiting for implementation</span><br>"
+                "</p>"
+        );
+        summaryLabel->setText(formattedText);
+    }
+    if(title.toStdString() == "Compliance")
+    {
+        QString formattedText = QString(
+                "<p style='font-size: 16px; color: #7f8c8d; text-align: center;'>"
+                "<b style='color: green;'>Number of Safe:</b> <span style='color: green;'>Waiting for implementation</span><br>"
+                "</p>"
+        );
+        summaryLabel->setText(formattedText);
     }
     summaryLabel->setStyleSheet("font-size: 16px; color: #7f8c8d; text-align: center;");
     summaryLabel->setWordWrap(true);
