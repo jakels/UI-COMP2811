@@ -1,7 +1,12 @@
+#include <QMessageBox>
 #include "mainwindow.h"
 
 DashboardWindow::DashboardWindow(QWidget *parent)
     : QMainWindow(parent) {
+
+    QMessageBox::information(this, "Welcome","The database will take a minute to load. Press OK to start.");
+    DB_Initialise();
+
     QWidget *centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
 
@@ -172,18 +177,18 @@ QFrame *DashboardWindow::createCard(const QString &title, const QString &style) 
     {
         QString formattedText = QString(
                 "<p style='font-size: 16px; color: #7f8c8d; text-align: center;'>"
-                "<b style='color: green;'>Number of Safe:</b> <span style='color: green;'>Waiting for implementation</span><br>"
+                "<b style='color: red;'>Number of unsafe POPs:</b> <span style='color: red;'>%1</span><br>"
                 "</p>"
-        );
+        ).arg(SAMPLES_NumberOfUnsafePops());
         summaryLabel->setText(formattedText);
     }
     if(title.toStdString() == "Compliance")
     {
         QString formattedText = QString(
                 "<p style='font-size: 16px; color: #7f8c8d; text-align: center;'>"
-                "<b style='color: green;'>Number of Safe:</b> <span style='color: green;'>Waiting for implementation</span><br>"
+                "<b style='color: grey;'>Number of Compliance samples:</b> <span style='color: grey;'>%1</span><br>"
                 "</p>"
-        );
+        ).arg(SAMPLES_NumberOfComplianceSamples());
         summaryLabel->setText(formattedText);
     }
     summaryLabel->setStyleSheet("font-size: 16px; color: #7f8c8d; text-align: center;");
@@ -409,8 +414,6 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
     qApp->setStyleSheet("QWidget:focus { border: 2px solid #3498db; outline: none; }");
-
-    DB_Initialise();
 
     DashboardWindow window;
     window.resize(1200, 800);

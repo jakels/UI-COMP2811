@@ -17,146 +17,74 @@
 #include <QToolTip>
 #include <QtCharts/QChartView>
 #include <map>
+#include "constants.h"
 
 PopsPage::PopsPage(QWidget *parent) : QWidget(parent)
 {
-
-
-    // 创建主布局
+    // Create the main layout
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
 
-
-
-    // ===== 信息显示部分 =====
+    // ===== Information Display Section =====
     infoLabel = new QLabel("Please select a pollutant to load data", this);
     mainLayout->addWidget(infoLabel);
 
-    // 创建图表并添加到布局
+    // Create the chart and add it to the layout
     chartView = new QChartView(createChart(), this);
     mainLayout->addWidget(chartView);
 
-    // 创建 POP 下拉选择框
+    // Create the POP selection dropdown
     popSelector = new QComboBox(this);
-    popSelector->addItem("Pops Overall");
-    popSelector->addItem("Aldrin");
-    popSelector->addItem("Chlordane");
-    popSelector->addItem("DDT");
-    popSelector->addItem("Endrin");
-    popSelector->addItem("Heptachlor");
-    popSelector->addItem("Hexachlorobenzene");
-    popSelector->addItem("Mirex");
-    popSelector->addItem("PCB");
-    popSelector->addItem("PCD");
-    popSelector->addItem("Toxaphene");
+    for(auto pop : popPollutants)
+    {
+        popSelector->addItem(pop);
+    }
 
     mainLayout->addWidget(popSelector);
 
-    // 创建加载数据按钮
+    // Create the Load Data button
     loadDataButton = new QPushButton("Load Data", this);
     mainLayout->addWidget(loadDataButton);
 
-    // 创建表格
+    // Create the table
     tableWidget = new QTableWidget(this);
-    tableWidget->setColumnCount(3); // 调整列数
+    tableWidget->setColumnCount(3); // Adjust the number of columns
     tableWidget->setHorizontalHeaderLabels({"Pollutant", "Level", "Safe"});
     tableWidget->horizontalHeader()->setStretchLastSection(true);
     tableWidget->verticalHeader()->setVisible(false);
     mainLayout->addWidget(tableWidget);
 
-    // 加载数据按钮点击事件
+    // Connect the Load Data button click event
     connect(loadDataButton, &QPushButton::clicked, this, [this]() {
         QString selectedPop = popSelector->currentText();
         loadPopData(selectedPop.toStdString());
     });
 
-    // 加载默认表格数据
-    loadDefaultTableData();
+    // Load default table data
+    loadPopData(popSelector->currentText().toStdString());
 
-    // 连接表格点击信号到槽函数
+    // Connect table click signals to the corresponding slot
     connect(tableWidget, &QTableWidget::cellClicked, this, &PopsPage::showRowDetails);
 
     setLayout(mainLayout);
-}
-void PopsPage::loadDefaultTableData()
-{
-    // 获取所有数据
-    std::vector<WaterQualitySample> allSamples = DB_GetCachedEntries();
-
-    // 定义需要筛选的字段
-    std::vector<std::string> filters = {"Aldrin", "Chlordane", "DDT", "Endrin", "Heptachlor", "Hexachlorobenzene", "Mirex", "PCB", "PCD", "Toxaphene"};
-
-    // 定义 map 用于统计每个字段的总和
-    std::map<std::string, double> pollutantSums;
-
-    // 累加每个污染物的结果
-    for (const auto &sample : allSamples) {
-        std::string lowerLabel = sample.determinandLabel;
-        std::transform(lowerLabel.begin(), lowerLabel.end(), lowerLabel.begin(), ::tolower);
-
-        for (const auto &field : filters) {
-            std::string lowerFilter = field;
-            std::transform(lowerFilter.begin(), lowerFilter.end(), lowerFilter.begin(), ::tolower);
-
-            if (lowerLabel.find(lowerFilter) != std::string::npos) {
-                pollutantSums[field] += std::stod(sample.result);
-            }
-        }
-    }
-
-    // 更新表格行数
-    tableWidget->setRowCount(pollutantSums.size());
-    int row = 0;
-
-    for (const auto &[pollutant, sum] : pollutantSums) {
-        // 填充 Pollutant 列
-        QTableWidgetItem *pollutantItem = new QTableWidgetItem(QString::fromStdString(pollutant));
-        tableWidget->setItem(row, 0, pollutantItem);
-
-        // 填充 Level 列
-        QTableWidgetItem *levelItem = new QTableWidgetItem(QString::number(sum, 'f', 2));
-        tableWidget->setItem(row, 1, levelItem);
-
-        // 填充 Safe 列
-        QString safeStatus = (sum < 10.0) ? "Yes" : "No"; // 设定安全阈值为 10
-        QTableWidgetItem *safeItem = new QTableWidgetItem(safeStatus);
-        tableWidget->setItem(row, 2, safeItem);
-
-        // 设置安全列颜色
-        safeItem->setBackground((safeStatus == "Yes") ? Qt::green : Qt::red);
-
-        // 添加 Details 按钮
-        QPushButton *detailsButton = new QPushButton("Details", this);
-        tableWidget->setCellWidget(row, 3, detailsButton);
-
-        // 连接按钮点击信号到槽函数
-        connect(detailsButton, &QPushButton::clicked, this, [this, pollutant, sum, safeStatus]() {
-            QMessageBox::information(
-                this,
-                "Pollutant Details",
-                QString("Pollutant: %1\nLevel: %2\nStatus: %3")
-                    .arg(QString::fromStdString(pollutant))
-                    .arg(QString::number(sum, 'f', 2))
-                    .arg(safeStatus)
-            );
-        });
-
-        ++row;
-    }
 }
 
 void PopsPage::loadPopData(const std::string &filter)
 {
     try {
-        // 获取所有数据
-        std::vector<WaterQualitySample> allSamples = DB_GetCachedEntries();
+        // Retrieve all data
+        std::vector<WaterQualitySample> allSamples = DB_GetCachedEntriesSubset(50000);
 
-        // 定义需要筛选的字段
-        std::vector<std::string> filters = {"DDT", "Endrin", "PCB", "Aldrin", "Chlordane", "Mirex", "Hexachlorobenzene"};
+        // Define the fields to be filtered
+        std::vector<std::string> filters = {};
+        for(auto popType : popPollutants)
+        {
+            filters.push_back(popType.toStdString());
+        }
 
-        // 定义 map 用于统计每个字段的总和
+        // Define a map to accumulate totals for each field
         std::map<std::string, double> pollutantSums;
 
-        // 筛选并累加字段
+        // Filter and accumulate the fields
         for (const auto &sample : allSamples) {
             std::string lowerLabel = sample.determinandLabel;
             std::transform(lowerLabel.begin(), lowerLabel.end(), lowerLabel.begin(), ::tolower);
@@ -171,53 +99,61 @@ void PopsPage::loadPopData(const std::string &filter)
             }
         }
 
-        // 如果没有数据
+        // If no data is found
         if (pollutantSums.empty()) {
             QMessageBox::information(this, "No Data", "No data found for the selected pollutants.");
             return;
         }
 
-        // 更新表格行数
+        // Update the number of rows in the table
         tableWidget->setRowCount(pollutantSums.size());
         int row = 0;
 
         for (const auto &[pollutant, sum] : pollutantSums) {
-            // 填充 Pollutant 列
+            // Fill the Pollutant column
             QTableWidgetItem *pollutantItem = new QTableWidgetItem(QString::fromStdString(pollutant));
             tableWidget->setItem(row, 0, pollutantItem);
 
-            // 填充 Level 列
+            // Fill the Level column
             QTableWidgetItem *levelItem = new QTableWidgetItem(QString::number(sum, 'f', 2));
             tableWidget->setItem(row, 1, levelItem);
 
-            // 填充 Safe 列
-            QString safeStatus = (sum < 10.0) ? "Yes" : "No"; // 设定安全阈值为 10
+            // Fill the Safe column
+            QString safeStatus = "Safe";
+            if(sum > 5)
+            {
+                safeStatus = "Caution";
+            }
+            if(sum > 8)
+            {
+                safeStatus = "Danger";
+            }
             QTableWidgetItem *safeItem = new QTableWidgetItem(safeStatus);
             tableWidget->setItem(row, 2, safeItem);
 
-            // 设置安全列颜色
-            safeItem->setBackground((safeStatus == "Yes") ? Qt::green : Qt::red);
+            // Set the color of the Safe column
+            safeItem->setBackground((safeStatus == "Safe") ? Qt::green : Qt::red);
 
-            // 添加按钮
-            QPushButton *detailsButton = new QPushButton("Details", tableWidget);
+            // Add a button
+            /*QPushButton *detailsButton = new QPushButton("Details", tableWidget);
             tableWidget->setCellWidget(row, 3, detailsButton);
 
-            // 连接按钮点击信号到槽函数
+            // Connect the button click signal to the corresponding slot
             connect(detailsButton, &QPushButton::clicked, this, [this, pollutant, sum, safeStatus]() {
                 QMessageBox::information(
-                    this,
-                    "Pollutant Details",
-                    QString("Pollutant: %1\nLevel: %2\nStatus: %3")
-                        .arg(QString::fromStdString(pollutant))
-                        .arg(QString::number(sum, 'f', 2))
-                        .arg(safeStatus)
+                        this,
+                        "Pollutant Details",
+                        QString("Pollutant: %1\nLevel: %2\nStatus: %3")
+                                .arg(QString::fromStdString(pollutant))
+                                .arg(QString::number(sum, 'f', 2))
+                                .arg(safeStatus)
                 );
-            });
+            });*/
 
             ++row;
         }
 
-        // 更新图表，只绘制所选分类的趋势图
+        // Update the chart and only display the trend for the selected category
         std::vector<WaterQualitySample> filteredSamples;
         for (const auto &sample : allSamples) {
             std::string lowerLabel = sample.determinandLabel;
@@ -242,11 +178,11 @@ QChart* PopsPage::createChart()
     QChart *chart = new QChart();
     chart->setTitle("Pollutant Trends Over Time");
 
-    // 设置空的初始数据
+    // Set initial empty data
     QLineSeries *series = new QLineSeries();
     chart->addSeries(series);
 
-    // 配置 X 和 Y 轴
+    // Configure X and Y axes
     QDateTimeAxis *axisX = new QDateTimeAxis();
     axisX->setFormat("yyyy-MM-dd");
     axisX->setTitleText("Time");
@@ -266,7 +202,7 @@ void PopsPage::updateChart(const std::vector<WaterQualitySample> &filteredSample
 {
     QChart *chart = chartView->chart();
 
-    // 清空现有数据和坐标轴
+    // Clear existing data and axes
     chart->removeAllSeries();
 
     QList<QAbstractAxis *> axes = chart->axes();
@@ -276,7 +212,7 @@ void PopsPage::updateChart(const std::vector<WaterQualitySample> &filteredSample
 
     QLineSeries *series = new QLineSeries();
 
-    // 添加数据到折线图
+    // Add data to the line chart
     for (const auto &sample : filteredSamples) {
         QDateTime time = QDateTime::fromString(QString::fromStdString(sample.sampleDateTime), Qt::ISODate);
         double result = std::stod(sample.result);
@@ -285,7 +221,7 @@ void PopsPage::updateChart(const std::vector<WaterQualitySample> &filteredSample
 
     chart->addSeries(series);
 
-    // 更新坐标轴范围
+    // Update the range of the axes
     if (!filteredSamples.empty()) {
         QDateTimeAxis *axisX = new QDateTimeAxis();
         axisX->setFormat("yyyy-MM-dd");
@@ -300,18 +236,18 @@ void PopsPage::updateChart(const std::vector<WaterQualitySample> &filteredSample
         series->attachAxis(axisY);
     }
 
-    // 连接鼠标悬停事件
+    // Connect the mouse hover event
     connect(series, &QLineSeries::hovered, this, &PopsPage::showChartDataTooltip);
 }
 
 void PopsPage::showChartDataTooltip(const QPointF &point, bool state)
 {
     if (state) {
-        // 获取鼠标所在位置
+        // Get the position of the mouse
         QString dateTime = QDateTime::fromMSecsSinceEpoch(point.x()).toString("yyyy-MM-dd");
-        QString value = QString::number(point.y(), 'f', 2);  // 格式化为小数点后两位
+        QString value = QString::number(point.y(), 'f', 2);  // Format to two decimal places
 
-        // 显示 ToolTip
+        // Display the tooltip
         QToolTip::showText(QCursor::pos(),
                            QString("Time: %1\nValue: %2 ppm").arg(dateTime).arg(value),
                            chartView);
@@ -327,12 +263,11 @@ void PopsPage::showRowDetails(int row, int column)
     QString safeStatus = tableWidget->item(row, 2)->text();
 
     QMessageBox::information(
-        this,
-        "Pollutant Details",
-        QString("Pollutant: %1\nLevel: %2\nStatus: %3")
-            .arg(pollutant)
-            .arg(level)
-            .arg(safeStatus)
+            this,
+            "Pollutant Details",
+            QString("Pollutant: %1\nLevel: %2\nStatus: %3")
+                    .arg(pollutant)
+                    .arg(level)
+                    .arg(safeStatus)
     );
 }
-

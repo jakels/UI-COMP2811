@@ -6,18 +6,7 @@
 #include <QDateTime>
 #include <QToolTip>
 #include "DatasetInterface.h"
-
-QStringList fluroPollutantTypes = {
-        "Trifluralin",
-        "Fluoroxypyr",
-        "FLUORENE",
-        "Fluoranthene",
-        "Diflurobnzrn",
-        "Fluoride - F",
-        "Fluazifopbut",
-        "Flutriafol",
-        "Cyfluthrin"
-};
+#include "constants.h"
 
 FluorinatedPage::FluorinatedPage(QWidget *parent)
     : QMainWindow(parent),

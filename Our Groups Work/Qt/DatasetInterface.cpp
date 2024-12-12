@@ -15,6 +15,7 @@
 #include "Utils.h"
 #include <cmath>
 #include "fluorinatedpage.h"
+#include "constants.h"
 
 // Global variables
 std::string CSVfilepath = "Water.csv";
@@ -24,11 +25,13 @@ bool initialised = false;
 std::vector<std::string> uniqueChemicals;
 std::vector<std::string> uniqueLocations;
 std::vector<WaterQualitySample> fluroSamples;
+int numberOfComplianceBasedSamples = 0;
 int fluroEntriesTotal = 0;
 int safeFluroEntriesTotal = 0;
 int safeEntriesTotal = 0;
 int cautionEntriesTotal = 0;
 int dangerEntriesTotal = 0;
+int numberOfUnsafePOPs = 0;
 
 // Print utility function
 void WaterQualitySample::print() const
@@ -77,19 +80,8 @@ std::vector<WaterQualitySample> DB_GetAllEntries(const std::string& filePath)
 {
     std::vector<WaterQualitySample> samples;
     csv::CSVReader reader(filePath);
-    QStringList fluroPollutantTypes = {
-            "Trifluralin",
-            "Fluoroxypyr",
-            "FLUORENE",
-            "Fluoranthene",
-            "Diflurobnzrn",
-            "Fluoride - F",
-            "Fluazifopbut",
-            "Flutriafol",
-            "Cyfluthrin"
-    };
 
-    int maxLoad = 1450000;
+    int maxLoad = 145000;
     int i = 0;
     int counter = 0;
 
@@ -147,6 +139,16 @@ std::vector<WaterQualitySample> DB_GetAllEntries(const std::string& filePath)
         if(safetyLevel == "Danger")
         {
             dangerEntriesTotal++;
+        }
+
+        if(sample.isComplianceSample == "true")
+        {
+            numberOfComplianceBasedSamples++;
+        }
+
+        if(popPollutants.contains(sample.determinandLabel.c_str()))
+        {
+            numberOfUnsafePOPs++;
         }
 
         if(fluroPollutantTypes.contains(sample.determinandLabel.c_str()))
@@ -362,4 +364,14 @@ int SAMPLES_NumberOfSafeFluroEntries()
 int SAMPLES_NumberOfFluroEntries()
 {
     return fluroEntriesTotal;
+}
+
+int SAMPLES_NumberOfComplianceSamples()
+{
+    return numberOfComplianceBasedSamples;
+}
+
+int SAMPLES_NumberOfUnsafePops()
+{
+    return numberOfUnsafePOPs;
 }

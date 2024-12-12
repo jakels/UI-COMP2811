@@ -44,6 +44,9 @@ set(PROJECT_SOURCES
         compliancedashboard.cpp
         popspage.cpp
         popspage.h
+        constants.h
+        constants.h
+        constants.cpp
 )
 
 

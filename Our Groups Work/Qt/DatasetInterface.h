@@ -58,6 +58,7 @@ std::vector<WaterQualitySample> DB_GetEntriesAllFluro();
 int SAMPLES_NumberOfSafeFluroEntries();
 int SAMPLES_NumberOfFluroEntries();
 int DB_GetEntriesByChemicalAndLeastResult(std::vector<WaterQualitySample> data, std::string determinand);
-
+int SAMPLES_NumberOfComplianceSamples();
+int SAMPLES_NumberOfUnsafePops();
 
 #endif // WATER_QUALITY_SAMPLE_H
