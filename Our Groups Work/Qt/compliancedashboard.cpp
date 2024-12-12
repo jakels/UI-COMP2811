@@ -17,8 +17,8 @@ ComplianceDashboard::ComplianceDashboard(QWidget *parent)
 {
     // Main layout
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    mainLayout->setContentsMargins(10, 10, 10, 10); // Uniform padding
-    mainLayout->setSpacing(10); // Tight spacing between sections
+    mainLayout->setContentsMargins(10, 10, 10, 10);
+    mainLayout->setSpacing(10);
 
     // Create filter labels and combo boxes
     QLabel *locationLabel = new QLabel(t("Location:").c_str());
@@ -60,7 +60,7 @@ ComplianceDashboard::ComplianceDashboard(QWidget *parent)
             "QPushButton:pressed { background-color: #14213D; }"
     );
 
-    // Populate filter combo boxes from the database
+    // Populate filter
     for (auto location : DB_UniqueLocations()) {
         locationComboBox->addItem(QString::fromStdString(location));
     }
@@ -91,8 +91,8 @@ ComplianceDashboard::ComplianceDashboard(QWidget *parent)
 
     scrollContent = new QWidget(this);
     cardContainer = new QGridLayout(scrollContent);
-    cardContainer->setSpacing(15); // Space between cards
-    cardContainer->setContentsMargins(0, 0, 0, 0); // Remove card container margins
+    cardContainer->setSpacing(15);
+    cardContainer->setContentsMargins(0, 0, 0, 0);
 
     scrollContent->setLayout(cardContainer);
     scrollArea->setWidget(scrollContent);
@@ -111,7 +111,7 @@ void ComplianceDashboard::displaySummaryCards(const std::vector<Data> &samples)
         delete item;
     }
 
-    int columns = calculateColumns(); // Determine number of columns
+    int columns = calculateColumns();
     int row = 0, col = 0;
 
     for (const auto &sample : samples) {
@@ -121,13 +121,13 @@ void ComplianceDashboard::displaySummaryCards(const std::vector<Data> &samples)
         // Determine background color based on status
         QString cardColor;
         if (sample.status == "Safe") {
-            cardColor = "#008000"; // Green for safe
+            cardColor = "#008000";
         } else if (sample.status == "Caution") {
-            cardColor = "#F39C12"; // Amber for caution
+            cardColor = "#F39C12";
         } else if (sample.status == "Danger") {
-            cardColor = "#E74C3C"; // Red for danger
+            cardColor = "#E74C3C";
         } else {
-            cardColor = "#95A5A6"; // Default color (gray) for undefined
+            cardColor = "#95A5A6";
         }
 
         card->setStyleSheet(QString(R"(
@@ -201,8 +201,9 @@ void ComplianceDashboard::resizeEvent(QResizeEvent *event)
 
 int ComplianceDashboard::calculateColumns()
 {
-    int windowWidth = scrollArea->viewport()->width(); // Use the viewport width of the scroll area
-    return std::max(1, windowWidth / (cardWidth + 20)); // Ensure at least 1 column
+    // Use the viewport width of the scroll area
+    int windowWidth = scrollArea->viewport()->width();
+    return std::max(1, windowWidth / (cardWidth + 20));
 }
 
 void ComplianceDashboard::showDetails(const Data &sample)

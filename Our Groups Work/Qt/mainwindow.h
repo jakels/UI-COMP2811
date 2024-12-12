@@ -14,12 +14,12 @@
 #include <QFrame>
 #include <QKeyEvent>
 #include <QDebug>
-#include "datavisualizationpage.h"
 #include "pollutantoverview.h"
 #include "fluorinatedpage.h"
 #include "compliancedashboard.h"
 #include "DatasetInterface.h"
 #include "popspage.h"
+#include <QMessageBox>
 
 class DashboardWindow : public QMainWindow {
     Q_OBJECT
@@ -36,12 +36,10 @@ private:
     QStackedWidget *stackedWidget;
 
     QWidget *createDashboardPage();
-    DataVisualizationPage *createDataVisualizationPage();
     QHBoxLayout *createFilters();
     QScrollArea *createContent();
     QFrame *createCard(const QString &title, const QString &style);
     QWidget *createNavigationBar();
-    //void setupNavigation();
     void configureTabOrder();
 };
 

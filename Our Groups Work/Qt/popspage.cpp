@@ -167,7 +167,7 @@ void PopsPage::loadPopData(const std::string &filter, const std::string &region,
             tableWidget->setItem(row, 2, safeItem);
 
             // Set the color of the Safe column
-            safeItem->setBackground((safeStatus == t("Safe").c_str()) ? Qt::green : Qt::red);
+            safeItem->setBackground((safeStatus == t("Safe").c_str()) ? QBrush(QColor("#008000")) : Qt::red);
 
             // Add a button
             /*QPushButton *detailsButton = new QPushButton(t("Details").c_str(), tableWidget);

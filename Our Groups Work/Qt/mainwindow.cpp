@@ -1,4 +1,3 @@
-#include <QMessageBox>
 #include "mainwindow.h"
 #include "translation_manager.h"
 
@@ -20,7 +19,7 @@ DashboardWindow::DashboardWindow(QWidget *parent)
     stackedWidget->addWidget(new FluorinatedPage(this));
     stackedWidget->addWidget(new ComplianceDashboard(this));
 
-    // Dynamically update the window title based on the current page
+    // Update the window title when switching pages
     connect(stackedWidget, &QStackedWidget::currentChanged, this, [=](int index) {
         switch (index) {
             case 0: setWindowTitle(t("Dashboard").c_str()); break;
@@ -36,7 +35,6 @@ DashboardWindow::DashboardWindow(QWidget *parent)
     mainLayout->addWidget(stackedWidget);
     centralWidget->setLayout(mainLayout);
 
-    //setupNavigation();
     createNavigationBar();
     configureTabOrder();
 }
@@ -45,6 +43,7 @@ QWidget *DashboardWindow::createDashboardPage() {
     QWidget *dashboardPage = new QWidget(this);
     QVBoxLayout *layout = new QVBoxLayout(dashboardPage);
 
+    // Add filters section and main content area
     layout->addLayout(createFilters());
     layout->addWidget(createContent(), 1);
     layout->addStretch();
@@ -120,8 +119,8 @@ QScrollArea *DashboardWindow::createContent() {
                         "QFrame:hover {"
                         "  transform: scale(1.05); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); }";
 
+    // Add cards for each category
     const int columnCount = 2;
-
     for (int i = 0; i < cardTitles.size(); ++i) {
         QFrame *card = createCard(cardTitles[i], cardStyle);
         gridLayout->addWidget(card, i / columnCount, i % columnCount, Qt::AlignTop);
@@ -150,6 +149,7 @@ QFrame *DashboardWindow::createCard(const QString &title, const QString &style) 
     QLabel *titleLabel = new QLabel(title);
     titleLabel->setStyleSheet("font-size: 22px; font-weight: bold; color: #2c3e50; text-align: center;");
 
+    //  conditions to show relevant info per card
     QLabel *summaryLabel = new QLabel();
     if (title.toStdString() == t("Pollutant Overview")) {
         QString formattedText = QString::fromStdString(
@@ -274,7 +274,7 @@ QStringList GetLanguages()
 }
 
 QWidget *DashboardWindow::createNavigationBar() {
-    // Instead of creating two separate widgets, just create one navBar
+
     QWidget *navBar = new QWidget(this);
     QHBoxLayout *navLayout = new QHBoxLayout(navBar);
     navLayout->setContentsMargins(20, 20, 20, 20);
@@ -348,7 +348,6 @@ QWidget *DashboardWindow::createNavigationBar() {
     navLayout->addWidget(languageSelector);
     navLayout->addStretch();
 
-    // Set the desired background color directly on navBar
     navBar->setStyleSheet(
             "background-color: #1D3557; "
             "border-bottom: 2px solid #A8DADC;"
@@ -432,8 +431,8 @@ void DashboardWindow::configureTabOrder() {
     }
 }
 
-
 void DashboardWindow::keyPressEvent(QKeyEvent *event) {
+    // Keyboard navigation
     switch (event->key()) {
         case Qt::Key_Left:
             qDebug() << t("Left arrow pressed - navigating backward").c_str();
@@ -455,7 +454,7 @@ void DashboardWindow::keyPressEvent(QKeyEvent *event) {
             close(); // Exit the application
             break;
         default:
-            QMainWindow::keyPressEvent(event); // Default handling
+            QMainWindow::keyPressEvent(event);
     }
 }
 
@@ -489,6 +488,7 @@ void DashboardWindow::onLanguageChanged(int index) {
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
+    // Highlight focused widget with a border
     qApp->setStyleSheet("QWidget:focus { border: 2px solid #3498db; outline: none; }");
 
     DashboardWindow window;

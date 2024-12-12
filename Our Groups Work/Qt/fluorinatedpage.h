@@ -23,10 +23,6 @@ private:
     QComboBox *filterDropdownLocation;
     QComboBox *filterDropdownCompliance;
 
-    // Navigation bar
-    //QHBoxLayout *createNavigationBar();
-    //QPushButton *createNavigationButton(const QString &text, const QString &style);
-
     // Filter sections
     QWidget *createTypeFilterSection();
     QWidget *createLocationFilterSection();
