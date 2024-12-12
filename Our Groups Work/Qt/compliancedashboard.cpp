@@ -249,7 +249,7 @@ void ComplianceDashboard::applyFilters()
         if (selectedStatus != "Any Status" && status != selectedStatus.toStdString()) {
             continue;
         }
-        filteredSamples.push_back({sample.samplingPointLabel, sample.result, status});
+        filteredSamples.push_back({sample.samplingPointLabel, sample.determinandLabel + " (" +sample.result+" " + sample.determinandUnitLabel+")", status});
     }
 
     displaySummaryCards(filteredSamples);
