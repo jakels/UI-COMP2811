@@ -97,16 +97,6 @@ QChartView *Pollutantoverview::createChart() {
     series->attachAxis(axisX);
     series->attachAxis(axisY);
 
-    // Add safe threshold as a reference line
-    //QLineSeries *threshold = new QLineSeries();
-    //threshold->append(0, 20);
-    //threshold->append(4, 20);
-    //threshold->setName("Safe Threshold");
-
-    //chart->addSeries(threshold);
-    //threshold->attachAxis(axisX);
-    //threshold->attachAxis(axisY);
-
     chart->setTitle("Determinand Trends Over Time");
 
     // Connect hovered signal

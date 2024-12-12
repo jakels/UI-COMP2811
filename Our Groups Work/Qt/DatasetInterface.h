@@ -61,4 +61,7 @@ int DB_GetEntriesByChemicalAndLeastResult(std::vector<WaterQualitySample> data, 
 int SAMPLES_NumberOfComplianceSamples();
 int SAMPLES_NumberOfUnsafePops();
 
+extern int numberOfComplianceBasedSamplesUnsafe;
+extern int numberOfPops;
+
 #endif // WATER_QUALITY_SAMPLE_H

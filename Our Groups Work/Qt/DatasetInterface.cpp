@@ -26,12 +26,14 @@ std::vector<std::string> uniqueChemicals;
 std::vector<std::string> uniqueLocations;
 std::vector<WaterQualitySample> fluroSamples;
 int numberOfComplianceBasedSamples = 0;
+int numberOfComplianceBasedSamplesUnsafe = 0;
 int fluroEntriesTotal = 0;
 int safeFluroEntriesTotal = 0;
 int safeEntriesTotal = 0;
 int cautionEntriesTotal = 0;
 int dangerEntriesTotal = 0;
 int numberOfUnsafePOPs = 0;
+int numberOfPops = 0;
 
 // Print utility function
 void WaterQualitySample::print() const
@@ -144,11 +146,19 @@ std::vector<WaterQualitySample> DB_GetAllEntries(const std::string& filePath)
         if(sample.isComplianceSample == "true")
         {
             numberOfComplianceBasedSamples++;
+            if(SAMPLE_GetSafetyLevel(sample) == "Danger")
+            {
+                numberOfComplianceBasedSamplesUnsafe++;
+            }
         }
 
         if(popPollutants.contains(sample.determinandLabel.c_str()))
         {
-            numberOfUnsafePOPs++;
+            numberOfPops++;
+            if(SAMPLE_GetSafetyLevel(sample) == "Danger")
+            {
+                numberOfUnsafePOPs++;
+            }
         }
 
         if(fluroPollutantTypes.contains(sample.determinandLabel.c_str()))

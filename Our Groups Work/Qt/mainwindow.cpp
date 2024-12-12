@@ -175,20 +175,38 @@ QFrame *DashboardWindow::createCard(const QString &title, const QString &style) 
     }
     if(title.toStdString() == "POPs")
     {
+        std::string status = "<b style='color: green;'>Status:</b> <span style='color: green;'>Above compliance threshold</span><br>";
+        double percentage = 100 - (((double)SAMPLES_NumberOfUnsafePops()/(double)std::max(numberOfPops, 1)) * (double)100);
+        if(percentage < (double)90)
+        {
+            status = "<b style='color: red;'>Status:</b> <span style='color: red;'>Below compliance threshold</span><br>";
+        }
         QString formattedText = QString(
                 "<p style='font-size: 16px; color: #7f8c8d; text-align: center;'>"
-                "<b style='color: red;'>Number of unsafe POPs:</b> <span style='color: red;'>%1</span><br>"
+                "<b style='color: green;'>Number of POP samples:</b> <span style='color: green;'>%1</span><br>"
+                "<b style='color: grey;'>Safety rate:</b> <span style='color: grey;'>%2 p.c</span><br>"
+                "<b style='color: red;'>Number of fail POP samples:</b> <span style='color: red;'>%3</span><br>"
+                "%4"
                 "</p>"
-        ).arg(SAMPLES_NumberOfUnsafePops());
+        ).arg(numberOfPops).arg(percentage).arg(SAMPLES_NumberOfUnsafePops()).arg(status.c_str());
         summaryLabel->setText(formattedText);
     }
     if(title.toStdString() == "Compliance")
     {
+        std::string status = "<b style='color: green;'>Status:</b> <span style='color: green;'>Above compliance threshold</span><br>";
+        double percentage = ((double)numberOfComplianceBasedSamplesUnsafe/(double)SAMPLES_NumberOfComplianceSamples()) * (double)100;
+        if(percentage < (double)90)
+        {
+            status = "<b style='color: red;'>Status:</b> <span style='color: red;'>Below compliance threshold</span><br>";
+        }
         QString formattedText = QString(
                 "<p style='font-size: 16px; color: #7f8c8d; text-align: center;'>"
-                "<b style='color: grey;'>Number of Compliance samples:</b> <span style='color: grey;'>%1</span><br>"
+                "<b style='color: green;'>Number of Compliance samples:</b> <span style='color: green;'>%1</span><br>"
+                "<b style='color: grey;'>Safety rate:</b> <span style='color: grey;'>%2 p.c</span><br>"
+                "<b style='color: red;'>Number of fail compliance samples:</b> <span style='color: red;'>%3</span><br>"
+                "%4"
                 "</p>"
-        ).arg(SAMPLES_NumberOfComplianceSamples());
+        ).arg(SAMPLES_NumberOfComplianceSamples()).arg(percentage).arg(numberOfComplianceBasedSamplesUnsafe).arg(status.c_str());
         summaryLabel->setText(formattedText);
     }
     summaryLabel->setStyleSheet("font-size: 16px; color: #7f8c8d; text-align: center;");
