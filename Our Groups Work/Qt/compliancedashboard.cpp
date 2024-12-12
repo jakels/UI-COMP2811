@@ -10,9 +10,10 @@
 #include <QResizeEvent>
 #include <QDebug>
 #include "DatasetInterface.h"
+#include "translation_manager.h"
 
 ComplianceDashboard::ComplianceDashboard(QWidget *parent)
-    : QWidget(parent), cardWidth(300), cardHeight(300) // Updated card dimensions
+        : QWidget(parent), cardWidth(300), cardHeight(300) // Updated card dimensions
 {
     // Main layout
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
@@ -20,43 +21,43 @@ ComplianceDashboard::ComplianceDashboard(QWidget *parent)
     mainLayout->setSpacing(10); // Tight spacing between sections
 
     // Create filter labels and combo boxes
-    QLabel *locationLabel = new QLabel("Location:");
+    QLabel *locationLabel = new QLabel(t("Location:").c_str());
     locationLabel->setStyleSheet("font-size: 16px; font-weight: bold; color: #1D3557;");
     locationComboBox = new QComboBox();
     locationComboBox->setStyleSheet("padding: 8px; font-size: 14px; border: 1px solid #457B9D; border-radius: 5px; color: #333;");
-    locationComboBox->addItem("Any Location");
+    locationComboBox->addItem(t("Any Location").c_str());
     locationComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     locationComboBox->setMinimumWidth(150);
     locationComboBox->setMinimumContentsLength(10);
 
-    QLabel *pollutantLabel = new QLabel("Determinand :");
+    QLabel *pollutantLabel = new QLabel(t("Determinand :").c_str());
     pollutantLabel->setStyleSheet("font-size: 16px; font-weight: bold; color: #1D3557;");
     pollutantComboBox = new QComboBox();
     pollutantComboBox->setStyleSheet("padding: 8px; font-size: 14px; border: 1px solid #457B9D; border-radius: 5px; color: #333;");
-    pollutantComboBox->addItem("Any Determinand");
+    pollutantComboBox->addItem(t("Any Determinand").c_str());
     pollutantComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     pollutantComboBox->setMinimumWidth(150);
     pollutantComboBox->setMinimumContentsLength(10);
 
-    QLabel *statusLabel = new QLabel("Status:");
+    QLabel *statusLabel = new QLabel(t("Status:").c_str());
     statusLabel->setStyleSheet("font-size: 16px; font-weight: bold; color: #1D3557;");
     statusComboBox = new QComboBox();
     statusComboBox->setStyleSheet("padding: 8px; font-size: 14px; border: 1px solid #457B9D; border-radius: 5px; color: #333;");
-    statusComboBox->addItem("Any Status");
-    statusComboBox->addItem("Safe");
-    statusComboBox->addItem("Caution");
-    statusComboBox->addItem("Danger");
+    statusComboBox->addItem(t("Any Status").c_str());
+    statusComboBox->addItem(t("Safe").c_str());
+    statusComboBox->addItem(t("Caution").c_str());
+    statusComboBox->addItem(t("Danger").c_str());
     statusComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     statusComboBox->setMinimumWidth(150);
     statusComboBox->setMinimumContentsLength(10);
 
-    QPushButton *applyFilterButton = new QPushButton("Apply Filters");
+    QPushButton *applyFilterButton = new QPushButton(t("Apply Filters").c_str());
     applyFilterButton->setStyleSheet(
-        "QPushButton {"
-        "  background-color: #457B9D; color: white; border-radius: 5px; "
-        "  padding: 10px 20px; font-size: 14px; font-weight: bold; }"
-        "QPushButton:hover { background-color: #1D3557; }"
-        "QPushButton:pressed { background-color: #14213D; }"
+            "QPushButton {"
+            "  background-color: #457B9D; color: white; border-radius: 5px; "
+            "  padding: 10px 20px; font-size: 14px; font-weight: bold; }"
+            "QPushButton:hover { background-color: #1D3557; }"
+            "QPushButton:pressed { background-color: #14213D; }"
     );
 
     // Populate filter combo boxes from the database
@@ -144,25 +145,25 @@ void ComplianceDashboard::displaySummaryCards(const std::vector<Data> &samples)
         QVBoxLayout *cardLayout = new QVBoxLayout(card);
 
         // Pollutant Level
-        QLabel *pollutantLabel = new QLabel("Pollutant: " + QString::fromStdString(sample.pollutant), card);
+        QLabel *pollutantLabel = new QLabel((t("Pollutant: ").c_str() + QString::fromStdString(sample.pollutant)), card);
         pollutantLabel->setStyleSheet("font-size: 18px; font-weight: bold; color: white; margin-bottom: 12px;");
         pollutantLabel->setAlignment(Qt::AlignCenter);
         cardLayout->addWidget(pollutantLabel);
 
         // Location
-        QLabel *locationLabel = new QLabel("Location: " + QString::fromStdString(sample.location), card);
+        QLabel *locationLabel = new QLabel((t("Location: ").c_str() + QString::fromStdString(sample.location)), card);
         locationLabel->setStyleSheet("font-size: 16px; color: #f0f0f0; margin-bottom: 10px;");
         locationLabel->setAlignment(Qt::AlignCenter);
         cardLayout->addWidget(locationLabel);
 
         // Status
-        QLabel *statusLabel = new QLabel("Status: " + QString::fromStdString(sample.status), card);
+        QLabel *statusLabel = new QLabel((t("Status: ").c_str() + QString::fromStdString(sample.status)), card);
         statusLabel->setStyleSheet("font-size: 16px; font-weight: bold; color: white; margin-bottom: 10px;");
         statusLabel->setAlignment(Qt::AlignCenter);
         cardLayout->addWidget(statusLabel);
 
         // Details Button
-        QPushButton *detailsButton = new QPushButton("Details", card);
+        QPushButton *detailsButton = new QPushButton(t("Details").c_str(), card);
         detailsButton->setStyleSheet(R"(
             QPushButton {
                 background-color: white;
@@ -212,11 +213,13 @@ void ComplianceDashboard::showDetails(const Data &sample)
         historicalData += entry.sampleDateTime + " " + entry.result + "\n";
     }
 
-    QMessageBox::information(this, "Details for " + QString::fromStdString(sample.pollutant),
-                             "Location: " + QString::fromStdString(sample.location) + "\n"
-                             "Pollutant: " + QString::fromStdString(sample.pollutant) + "\n"
-                             "Status: " + QString::fromStdString(sample.status) + "\n\n"
-                             "Historical Trends: " + QString::fromStdString(historicalData));
+    QMessageBox::information(this,
+                             (t("Details for ").c_str() + QString::fromStdString(sample.pollutant)),
+                             (t("Location: ").c_str() + QString::fromStdString(sample.location) + "\n"
+                              + t("Pollutant: ").c_str() + QString::fromStdString(sample.pollutant) + "\n"
+                              + t("Status: ").c_str() + QString::fromStdString(sample.status) + "\n\n"
+                              + t("Historical Trends: ").c_str() + QString::fromStdString(historicalData))
+    );
 }
 
 void ComplianceDashboard::applyFilters()
@@ -226,19 +229,19 @@ void ComplianceDashboard::applyFilters()
     QString selectedStatus = statusComboBox->currentText();
 
     // Validate if both are set to "Any", show dataset too large message
-    if (selectedLocation == "Any Location" && selectedPollutant == "Any Determinand") {
-        QMessageBox::information(this, "Dataset too large", "Please refine your search.");
+    if (selectedLocation == t("Any Location").c_str() && selectedPollutant == t("Any Determinand").c_str()) {
+        QMessageBox::information(this, t("Dataset too large").c_str(), t("Please refine your search.").c_str());
         return;
     }
 
     std::vector<WaterQualitySample> waterSamples;
 
     // Determine which database query to run based on filters
-    if (selectedLocation != "Any Location" && selectedPollutant != "Any Determinand") {
+    if (selectedLocation != t("Any Location").c_str() && selectedPollutant != t("Any Determinand").c_str()) {
         waterSamples = DB_GetEntriesByChemicalAndLocation(selectedPollutant.toStdString(), selectedLocation.toStdString());
-    } else if (selectedLocation == "Any Location" && selectedPollutant != "Any Determinand") {
+    } else if (selectedLocation == t("Any Location").c_str() && selectedPollutant != t("Any Determinand").c_str()) {
         waterSamples = DB_GetEntriesByChemical(selectedPollutant.toStdString());
-    } else if (selectedLocation != "Any Location" && selectedPollutant == "Any Determinand") {
+    } else if (selectedLocation != t("Any Location").c_str() && selectedPollutant == t("Any Determinand").c_str()) {
         waterSamples = DB_GetEntriesByLocation(selectedLocation.toStdString());
     }
 
@@ -246,7 +249,7 @@ void ComplianceDashboard::applyFilters()
     std::vector<Data> filteredSamples;
     for (auto &sample : waterSamples) {
         std::string status = SAMPLE_GetSafetyLevel(sample);
-        if (selectedStatus != "Any Status" && status != selectedStatus.toStdString()) {
+        if (selectedStatus != t("Any Status").c_str() && status != selectedStatus.toStdString()) {
             continue;
         }
         filteredSamples.push_back({sample.samplingPointLabel, sample.determinandLabel + " (" +sample.result+" " + sample.determinandUnitLabel+")", status});
@@ -255,6 +258,6 @@ void ComplianceDashboard::applyFilters()
     displaySummaryCards(filteredSamples);
 
     if (filteredSamples.empty()) {
-        QMessageBox::information(this, "No Results", "No data matches the selected filters.");
+        QMessageBox::information(this, t("No Results").c_str(), t("No data matches the selected filters.").c_str());
     }
 }

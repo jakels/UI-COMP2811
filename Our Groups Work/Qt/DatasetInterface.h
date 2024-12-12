@@ -60,6 +60,8 @@ int SAMPLES_NumberOfFluroEntries();
 int DB_GetEntriesByChemicalAndLeastResult(std::vector<WaterQualitySample> data, std::string determinand);
 int SAMPLES_NumberOfComplianceSamples();
 int SAMPLES_NumberOfUnsafePops();
+bool SAMPLE_WithinLastMonth(WaterQualitySample sample);
+bool SAMPLE_WithinLastYear(WaterQualitySample sample);
 
 extern int numberOfComplianceBasedSamplesUnsafe;
 extern int numberOfPops;

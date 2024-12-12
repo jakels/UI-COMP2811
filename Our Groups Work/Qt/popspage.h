@@ -29,7 +29,7 @@ private slots:
     void showRowDetails(int row, int column);  // Slot function to display detailed information for a single row in the table
 
 private:
-    void loadPopData(const std::string &filter); // Method to load POP data
+    void loadPopData(const std::string &filter, const std::string &region, const std::string &time); // Method to load POP data
     QChart *createChart();                      // Method to create the initial chart
     QHBoxLayout *createFilters();
     void updateChart(const std::vector<WaterQualitySample> &filteredSamples); // Method to update the chart data

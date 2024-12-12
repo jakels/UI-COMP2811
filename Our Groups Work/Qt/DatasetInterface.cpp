@@ -385,3 +385,31 @@ int SAMPLES_NumberOfUnsafePops()
 {
     return numberOfUnsafePOPs;
 }
+
+bool SAMPLE_WithinLastMonth(WaterQualitySample sample)
+{
+    std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    std::string currentTime = std::ctime(&now);
+    std::string lastMonth = std::to_string(std::stoi(currentTime.substr(4, 2)) - 1);
+    std::string currentMonth = currentTime.substr(4, 2);
+;
+    if(sample.sampleDateTime.substr(5, 2) == currentMonth || sample.sampleDateTime.substr(5, 2) == lastMonth)
+    {
+        return true;
+    }
+    return false;
+}
+
+bool SAMPLE_WithinLastYear(WaterQualitySample sample)
+{
+    std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    std::string currentTime = std::ctime(&now);
+    std::string lastYear = std::to_string(std::stoi(currentTime.substr(20, 4)) - 1);
+    std::string currentYear = currentTime.substr(20, 4);
+
+    if(sample.sampleDateTime.substr(0, 4) == currentYear || sample.sampleDateTime.substr(0, 4) == lastYear)
+    {
+        return true;
+    }
+    return false;
+}

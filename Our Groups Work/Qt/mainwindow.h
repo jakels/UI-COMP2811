@@ -26,6 +26,8 @@ class DashboardWindow : public QMainWindow {
 
 public:
     explicit DashboardWindow(QWidget *parent = nullptr);
+    void restartApplication();
+    void onLanguageChanged(int index);
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;

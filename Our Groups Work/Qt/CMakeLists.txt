@@ -47,6 +47,8 @@ set(PROJECT_SOURCES
         constants.h
         constants.h
         constants.cpp
+        translation_manager.cpp
+        translation_manager.h
 )
 
 

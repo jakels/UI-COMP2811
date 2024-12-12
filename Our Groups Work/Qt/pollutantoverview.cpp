@@ -18,27 +18,28 @@
 #include <QtCharts>
 #include <QDateTime>
 #include <QToolTip>
+#include "translation_manager.h"
 
 std::string targetChemical = "Endrin";
 
 Pollutantoverview::Pollutantoverview(QWidget *parent)
-    : QWidget(parent) {
+        : QWidget(parent) {
     QVBoxLayout *layout = new QVBoxLayout(this);
 
     // Create search bar
     searchBar = new QLineEdit(this);
-    searchBar->setPlaceholderText("Search pollutants...");
+    searchBar->setPlaceholderText(t("Search pollutants...").c_str());
     searchBar->setStyleSheet("padding: 8px; font-size: 14px; border: 1px solid #ccc; border-radius: 5px;");
 
     // Create a search button
-    searchButton = new QPushButton("Search", this);
+    searchButton = new QPushButton(t("Search").c_str(), this);
     searchButton->setStyleSheet(
-    "QPushButton {"
- "  background-color: #457B9D; color: white; border-radius: 5px; "
- "  padding: 10px 20px; font-size: 14px; font-weight: bold; }"
- "QPushButton:hover { background-color: #1D3557; }"
- "QPushButton:pressed { background-color: #14213D; }"
-);
+            "QPushButton {"
+            "  background-color: #457B9D; color: white; border-radius: 5px; "
+            "  padding: 10px 20px; font-size: 14px; font-weight: bold; }"
+            "QPushButton:hover { background-color: #1D3557; }"
+            "QPushButton:pressed { background-color: #14213D; }"
+    );
     connect(searchButton, &QPushButton::clicked, this, &Pollutantoverview::handleSearch);
 
     // Add search bar and button to a horizontal layout
@@ -84,8 +85,8 @@ QChartView *Pollutantoverview::createChart() {
 
     // Configure axes
     axisX = new QDateTimeAxis();
-    axisX->setFormat("yyyy-MM-dd HH:mm");
-    axisX->setTitleText("Time");
+    axisX->setFormat(t("yyyy-MM-dd HH:mm").c_str());
+    axisX->setTitleText(t("Time").c_str());
 
     axisY = new QValueAxis();
     axisY->setTitleText(targetChemical.c_str());
@@ -97,7 +98,7 @@ QChartView *Pollutantoverview::createChart() {
     series->attachAxis(axisX);
     series->attachAxis(axisY);
 
-    chart->setTitle("Determinand Trends Over Time");
+    chart->setTitle(t("Determinand Trends Over Time").c_str());
 
     // Connect hovered signal
     connect(series, &QLineSeries::hovered, this, &Pollutantoverview::showChartDataTooltip);
@@ -107,7 +108,7 @@ QChartView *Pollutantoverview::createChart() {
 
 QTableWidget *Pollutantoverview::createComplianceTable() {
     table = new QTableWidget(8, 4, this); // Adjust row count dynamically later
-    table->setHorizontalHeaderLabels({"Determinand", "Level", "Location", "Status"});
+    table->setHorizontalHeaderLabels({ t("Determinand").c_str(), t("Level").c_str(), t("Location").c_str(), t("Status").c_str() });
     table->horizontalHeader()->setStretchLastSection(true);
     table->verticalHeader()->setVisible(false);
 
@@ -143,7 +144,7 @@ void Pollutantoverview::populateTable()
 
         statuses.append(SAMPLE_GetSafetyLevel(sample).c_str());
 
-        riskDescriptions.append("?");
+        riskDescriptions.append(t("?").c_str());
     }
 
     table->setRowCount(pollutants.size());
@@ -157,13 +158,13 @@ void Pollutantoverview::populateTable()
         pollutantItem->setToolTip(riskDescriptions[i]);
         levelItem->setToolTip(riskDescriptions[i]);
         locationItem->setToolTip(locations[i]);
-        statusItem->setToolTip("Status: " + statuses[i] + "\n" + riskDescriptions[i]);
+        statusItem->setToolTip(t("Status: ").c_str() + statuses[i] + t("\n").c_str() + riskDescriptions[i]);
 
         // Color-code statuses
-        if (statuses[i] == "Safe") {
+        if (statuses[i] == t("Safe").c_str()) {
             //statusItem->setBackground(Qt::green);
             statusItem->setBackground(QColor ("#008000"));
-        } else if (statuses[i] == "Caution") {
+        } else if (statuses[i] == t("Caution").c_str()) {
             statusItem->setBackground(QColor("#FFBF00")); // Amber color
         } else {
             statusItem->setBackground(Qt::red);
@@ -173,7 +174,6 @@ void Pollutantoverview::populateTable()
         table->setItem(i, 1, levelItem);
         table->setItem(i, 2, locationItem);
         table->setItem(i, 3, statusItem);
-
     }
 }
 
@@ -201,14 +201,12 @@ void Pollutantoverview::showPollutantDetails(int row, int column) {
     QString description;
 
     // Generate dynamic description based on status
-    if (status == "Safe") {
-        description = "The pollutant level is within the safe threshold, posing minimal or no risk to health.";
-    } else if (status == "Caution") {
-        description = "The pollutant level is nearing the upper limit of safety. Monitoring and caution are advised.";
-    } else if (status == "Danger") {
-        description = "The pollutant level exceeds the safe threshold, posing significant health and environmental risks.";
+    if (status == t("Safe").c_str()) {
+        description = t("The pollutant level is within the safe threshold, posing minimal or no risk to health.").c_str();
+    } else if (status == t("Caution").c_str()) {
+        description = t("The pollutant level is nearing the upper limit of safety. Monitoring and caution are advised.").c_str();
     } else {
-        description = "No specific information available for this status. Please review the pollutant details.";
+        description = t("No specific information available for this status. Please review the pollutant details.").c_str();
     }
 
     // Update chart data dynamically
@@ -220,29 +218,29 @@ void Pollutantoverview::showPollutantDetails(int row, int column) {
     if (!chemicalEntries.empty()) {
         determinandDefinition = chemicalEntries[0].determinandDefinition;
     } else {
-        determinandDefinition = "No additional details available for this pollutant.";
+        determinandDefinition = t("No additional details available for this pollutant.").c_str();
     }
 
     // Construct the message
-    QString message = QString("Pollutant: %1\nLevel: %2 ppm\nStatus: %3\n\nDescription: %4\n\nDetails: %5")
-                          .arg(pollutant)
-                          .arg(level)
-                          .arg(status)
-                          .arg(description)
-                          .arg(QString::fromStdString(determinandDefinition));
+    QString message = QString(t("Pollutant: %1\nLevel: %2 ppm\nStatus: %3\n\nDescription: %4\n\nDetails: %5").c_str())
+            .arg(pollutant)
+            .arg(level)
+            .arg(status)
+            .arg(description)
+            .arg(QString::fromStdString(determinandDefinition));
 
     // Set the target chemical for further use
     targetChemical = pollutant.toStdString();
 
     // Display the message
-    QMessageBox::information(this, "Pollutant Details", message);
+    QMessageBox::information(this, t("Pollutant Details").c_str(), message);
 }
 
 void Pollutantoverview::showChartDataTooltip(const QPointF &point, bool state) {
     if (state) {
-        QToolTip::showText(QCursor::pos(), QString("Time: %1 months\nLevel: %2 ppm")
-                                               .arg(point.x())
-                                               .arg(point.y()));
+        QToolTip::showText(QCursor::pos(), QString(t("Time: %1 months\nLevel: %2 ppm").c_str())
+                .arg(point.x())
+                .arg(point.y()));
     } else {
         QToolTip::hideText();
     }
@@ -278,6 +276,6 @@ void Pollutantoverview::updateChartData(std::string chemName) {
     } else {
         // If no data, reset to default range
         axisY->setRange(0, 1);
-        QMessageBox::information(this, "No data", "There was no data for your query.");
+        QMessageBox::information(this, t("No data").c_str(), t("There was no data for your query.").c_str());
     }
 }

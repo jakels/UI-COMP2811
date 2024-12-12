@@ -7,13 +7,14 @@
 #include <QToolTip>
 #include "DatasetInterface.h"
 #include "constants.h"
+#include "translation_manager.h"
 
 FluorinatedPage::FluorinatedPage(QWidget *parent)
-    : QMainWindow(parent),
-      summaryCardLayout(new QVBoxLayout),
-      filterDropdownType(new QComboBox()),
-      filterDropdownLocation(new QComboBox()),
-      filterDropdownCompliance(new QComboBox())
+        : QMainWindow(parent),
+          summaryCardLayout(new QVBoxLayout),
+          filterDropdownType(new QComboBox()),
+          filterDropdownLocation(new QComboBox()),
+          filterDropdownCompliance(new QComboBox())
 {
     /*std::vector<WaterQualitySample> samples = DB_GetEntriesByChemical("", "");
     for (int i = 0; i < 1000; i++) {
@@ -42,7 +43,7 @@ FluorinatedPage::FluorinatedPage(QWidget *parent)
     mainLayout->addLayout(contentLayout);
 
     resize(1200, 700);
-    setWindowTitle("Fluorinated Compounds");
+    setWindowTitle(t("Fluorinated Compounds").c_str());
     setStyleSheet("background-color: #f5f5f5;");
 
     // Initialize the compliance status
@@ -58,17 +59,17 @@ QWidget *FluorinatedPage::createTypeFilterSection()
     QVBoxLayout *typeFilterLayout = new QVBoxLayout(filterWidget);
     typeFilterLayout->setSpacing(8);
 
-    QLabel *filterLabel = new QLabel("Select Type:");
+    QLabel *filterLabel = new QLabel(t("Select Type:").c_str());
     filterLabel->setStyleSheet("font-size: 16px; font-weight: bold; color: black;");
 
     filterDropdownType->addItems(fluroPollutantTypes);
     filterDropdownType->setStyleSheet(
-        "QComboBox {"
-        "  font-size: 14px; padding: 5px; color: black; background-color: white; border: 1px solid #ccc; border-radius: 5px;"
-        "}"
-        "QComboBox QAbstractItemView {"
-        "  color: black; background-color: white; selection-background-color: #3498db; selection-color: white;"
-        "}"
+            "QComboBox {"
+            "  font-size: 14px; padding: 5px; color: black; background-color: white; border: 1px solid #ccc; border-radius: 5px;"
+            "}"
+            "QComboBox QAbstractItemView {"
+            "  color: black; background-color: white; selection-background-color: #3498db; selection-color: white;"
+            "}"
     );
 
     typeFilterLayout->addWidget(filterLabel);
@@ -85,22 +86,22 @@ QWidget *FluorinatedPage::createLocationFilterSection()
     QVBoxLayout *locationFilterLayout = new QVBoxLayout(filterWidget);
     locationFilterLayout->setSpacing(8);
 
-    QLabel *filterLabel = new QLabel("Select Location:");
+    QLabel *filterLabel = new QLabel(t("Select Location:").c_str());
     filterLabel->setStyleSheet("font-size: 16px; font-weight: bold; color: black;");
 
-    QStringList locations = {"Any"};
+    QStringList locations = {t("Any").c_str()};
     for(auto location : DB_UniqueLocations())
     {
         locations.append(location.c_str());
     }
     filterDropdownLocation->addItems(locations);
     filterDropdownLocation->setStyleSheet(
-        "QComboBox {"
-        "  font-size: 14px; padding: 5px; color: black; background-color: white; border: 1px solid #ccc; border-radius: 5px;"
-        "}"
-        "QComboBox QAbstractItemView {"
-        "  color: black; background-color: white; selection-background-color: #3498db; selection-color: white;"
-        "}"
+            "QComboBox {"
+            "  font-size: 14px; padding: 5px; color: black; background-color: white; border: 1px solid #ccc; border-radius: 5px;"
+            "}"
+            "QComboBox QAbstractItemView {"
+            "  color: black; background-color: white; selection-background-color: #3498db; selection-color: white;"
+            "}"
     );
 
     locationFilterLayout->addWidget(filterLabel);
@@ -117,18 +118,18 @@ QWidget *FluorinatedPage::createComplianceFilterSection()
     QVBoxLayout *complianceFilterLayout = new QVBoxLayout(filterWidget);
     complianceFilterLayout->setSpacing(8);
 
-    QLabel *filterLabel = new QLabel("Compliance Status:");
+    QLabel *filterLabel = new QLabel(t("Compliance Status:").c_str());
     filterLabel->setStyleSheet("font-size: 16px; font-weight: bold; color: black;");
 
-    QStringList complianceStatuses = {"Compliant", "Non-Compliant"};
+    QStringList complianceStatuses = {t("Compliant").c_str(), t("Non-Compliant").c_str()};
     filterDropdownCompliance->addItems(complianceStatuses);
     filterDropdownCompliance->setStyleSheet(
-        "QComboBox {"
-        "  font-size: 14px; padding: 5px; color: black; background-color: white; border: 1px solid #ccc; border-radius: 5px;"
-        "}"
-        "QComboBox QAbstractItemView {"
-        "  color: black; background-color: white; selection-background-color: #3498db; selection-color: white;"
-        "}"
+            "QComboBox {"
+            "  font-size: 14px; padding: 5px; color: black; background-color: white; border: 1px solid #ccc; border-radius: 5px;"
+            "}"
+            "QComboBox QAbstractItemView {"
+            "  color: black; background-color: white; selection-background-color: #3498db; selection-color: white;"
+            "}"
     );
 
     //complianceFilterLayout->addWidget(filterLabel);
@@ -153,18 +154,18 @@ void FluorinatedPage::updateComplianceStatus()
     std::vector<WaterQualitySample> samplesOfTheFluroCompound = DB_GetEntriesByChemical(pollutant.toStdString());
     if(samplesOfTheFluroCompound.size() == 0)
     {
-        QMessageBox::information(this, "No data","No data for the fluro-compound selected.");
+        QMessageBox::information(this, t("No data").c_str(), t("No data for the fluro-compound selected.").c_str());
         return;
     }
     QString safetyLevel = SAMPLE_GetSafetyLevel(samplesOfTheFluroCompound.back()).c_str();
 
-    QString status = QString("Pollutant: %1\nLocation: %2\nStatus: %3").arg(pollutant, location, safetyLevel);
+    QString status = QString(t("Pollutant: %1\nLocation: %2\nStatus: %3").c_str()).arg(pollutant, location, t(safetyLevel.toStdString()).c_str());
     QString color = "green";
-    if(safetyLevel == "Caution")
+    if(safetyLevel == t("Caution").c_str())
     {
         color = "orange";
     }
-    if(safetyLevel == "Danger")
+    if(safetyLevel == t("Danger").c_str())
     {
         color = "red";
     }
@@ -202,7 +203,7 @@ QWidget *FluorinatedPage::createVisualizationSection()
     visualizationWidget->setMinimumSize(800, 500);
 
     seriesFluro = new QLineSeries();
-    seriesFluro->setName("Fluorinated Pollutant Levels");
+    seriesFluro->setName(t("Fluorinated Pollutant Levels").c_str());
 
 
     // Load in data from the backend, get all the samples that had the chemical
@@ -227,18 +228,18 @@ QWidget *FluorinatedPage::createVisualizationSection()
 
     QChart *chart = new QChart();
     chart->addSeries(seriesFluro);
-    chart->setTitle("Fluorinated Pollutants Levels Over Time");
+    chart->setTitle(t("Fluorinated Pollutants Levels Over Time").c_str());
     chart->legend()->setAlignment(Qt::AlignBottom);
 
     axisXFluro = new QDateTimeAxis();
-    axisXFluro->setFormat("yyyy-MM-dd HH:mm");
-    axisXFluro->setTitleText("Time");
+    axisXFluro->setFormat("yyyy-MM-dd HH:mm"); // Format strings typically remain unchanged
+    axisXFluro->setTitleText(t("Time").c_str());
     axisXFluro->setTickCount(10);
     chart->addAxis(axisXFluro, Qt::AlignBottom);
     seriesFluro->attachAxis(axisXFluro);
 
     axisYFluro = new QValueAxis();
-    std::string title = "Pollutant Levels " + query[0].determinandUnitLabel;
+    std::string title = std::string(t("Pollutant Levels ").c_str()) + query[0].determinandUnitLabel;
     axisYFluro->setTitleText(title.c_str());
     axisYFluro->setLabelFormat("%.9f");
     axisYFluro->setRange(0, maximumResult);
@@ -267,9 +268,9 @@ QWidget *FluorinatedPage::createSummarySection()
 void FluorinatedPage::showChartDataTooltip(const QPointF &point, bool state)
 {
     if (state) {
-        QString tooltipText = QString("Time: %1\nLevel: %2")
-                                  .arg(QDateTime::fromMSecsSinceEpoch(point.x()).toString("yyyy-MM-dd HH:mm"))
-                                  .arg(point.y(), 0, 'f', 2);
+        QString tooltipText = QString(t("Time: %1\nLevel: %2").c_str())
+                .arg(QDateTime::fromMSecsSinceEpoch(point.x()).toString("yyyy-MM-dd HH:mm"))
+                .arg(point.y(), 0, 'f', 2);
         QToolTip::showText(QCursor::pos(), tooltipText);
     } else {
         QToolTip::hideText();
@@ -288,7 +289,7 @@ void FluorinatedPage::updateChartData()
     std::vector<WaterQualitySample> query;
 
     // If location is "Any", query by chemical only
-    if (location == "Any") {
+    if (location == t("Any").c_str()) {
         query = OrderSamplesByDate(DB_GetEntriesByChemical(pollutant.toStdString()));
     } else {
         query = OrderSamplesByDate(DB_GetEntriesByChemicalAndLocation(pollutant.toStdString(), location.toStdString()));
@@ -311,6 +312,6 @@ void FluorinatedPage::updateChartData()
     } else {
         // If no data, reset to default range
         axisYFluro->setRange(0, 1);
-        QMessageBox::information(this, "No data", "There was no data for your query.");
+        QMessageBox::information(this, t("No data").c_str(), t("There was no data for your query.").c_str());
     }
 }
