@@ -31,6 +31,7 @@ private slots:
 private:
     void loadPopData(const std::string &filter); // Method to load POP data
     QChart *createChart();                      // Method to create the initial chart
+    QHBoxLayout *createFilters();
     void updateChart(const std::vector<WaterQualitySample> &filteredSamples); // Method to update the chart data
     void showChartDataTooltip(const QPointF &point, bool state);             // Display tooltip for chart data
 

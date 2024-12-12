@@ -77,7 +77,6 @@ QChartView *Pollutantoverview::createChart() {
             maximumResult = sampleResult;
         }
 
-        // Add the sample data to the chart
         series->append(QDateTime::fromString(sampleDate, Qt::ISODate).toMSecsSinceEpoch(), sampleResult);
     }
 
@@ -100,9 +99,7 @@ QChartView *Pollutantoverview::createChart() {
 
     // Add safe threshold as a reference line
     QLineSeries *threshold = new QLineSeries();
-    //threshold->append(0, 20);
-    //threshold->append(4, 20);
-    //threshold->setName("Safe Threshold");
+
 
     chart->addSeries(threshold);
     threshold->attachAxis(axisX);

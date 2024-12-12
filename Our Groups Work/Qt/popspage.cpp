@@ -24,6 +24,8 @@ PopsPage::PopsPage(QWidget *parent) : QWidget(parent)
     // Create the main layout
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
 
+    mainLayout->addLayout(createFilters());
+
     // ===== Information Display Section =====
     infoLabel = new QLabel("Please select a pollutant to load data", this);
     mainLayout->addWidget(infoLabel);
@@ -270,4 +272,52 @@ void PopsPage::showRowDetails(int row, int column)
                     .arg(level)
                     .arg(safeStatus)
     );
+}
+
+QHBoxLayout *PopsPage::createFilters() {
+    QHBoxLayout *filterLayout = new QHBoxLayout();
+
+    QLabel *timeLabel = new QLabel("Filter by Time:");
+    timeLabel->setStyleSheet("font-size: 16px; font-weight: bold; color: #1D3557;");
+    QComboBox *timeFilter = new QComboBox();
+    timeFilter->addItems({"All Time", "Last Month", "Last Year"});
+    timeFilter->setStyleSheet("padding: 8px; font-size: 14px; border: 1px solid #457B9D; border-radius: 5px; color: #333;");
+    timeFilter->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    timeFilter->setMinimumWidth(150);
+    timeFilter->setMinimumContentsLength(10);
+
+    QLabel *regionLabel = new QLabel("Filter by Region:");
+    regionLabel->setStyleSheet("font-size: 16px; font-weight: bold; color: #1D3557;");
+    QComboBox *regionFilter = new QComboBox();
+    regionFilter->addItems({"All Regions", "Region A", "Region B", "Region C"});
+    regionFilter->setStyleSheet("padding: 8px; font-size: 14px; border: 1px solid #457B9D; border-radius: 5px; color: #333;");
+    regionFilter->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    regionFilter->setMinimumWidth(150);
+    regionFilter->setMinimumContentsLength(10); // adjusts width based on number of characters
+
+    QPushButton *applyFilterButton = new QPushButton("Apply Filters");
+    applyFilterButton->setStyleSheet(
+        "QPushButton {"
+        "  background-color: #457B9D; color: white; border-radius: 5px; "
+        "  padding: 10px 20px; font-size: 14px; font-weight: bold; }"
+        "QPushButton:hover { background-color: #1D3557; }"
+        "QPushButton:pressed { background-color: #14213D; }"
+    );
+
+    connect(applyFilterButton, &QPushButton::clicked, this, [=]() {
+        QString selectedTime = timeFilter->currentText();
+        QString selectedRegion = regionFilter->currentText();
+        qDebug() << "Filters applied: Time -" << selectedTime << ", Region -" << selectedRegion;
+    });
+
+    filterLayout->addWidget(timeLabel);
+    filterLayout->addWidget(timeFilter);
+    filterLayout->addSpacing(20);
+    filterLayout->addWidget(regionLabel);
+    filterLayout->addWidget(regionFilter);
+    filterLayout->addSpacing(20);
+    filterLayout->addWidget(applyFilterButton);
+    filterLayout->addStretch();
+
+    return filterLayout;
 }
