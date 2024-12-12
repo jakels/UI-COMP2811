@@ -33,15 +33,12 @@ Pollutantoverview::Pollutantoverview(QWidget *parent)
     // Create a search button
     searchButton = new QPushButton("Search", this);
     searchButton->setStyleSheet(
-        "padding: 8px; "
-        "font-size: 14px; "
-        "border: 1px solid #007BFF; "
-        "border-radius: 5px; "
-        "background-color: #007BFF; "
-        "color: white; "
-        "transition: all 0.2s ease-in-out; "
-        "hover: { background-color: #0056b3; transform: scale(1.02); box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2); }"
-    );
+    "QPushButton {"
+ "  background-color: #457B9D; color: white; border-radius: 5px; "
+ "  padding: 10px 20px; font-size: 14px; font-weight: bold; }"
+ "QPushButton:hover { background-color: #1D3557; }"
+ "QPushButton:pressed { background-color: #14213D; }"
+);
     connect(searchButton, &QPushButton::clicked, this, &Pollutantoverview::handleSearch);
 
     // Add search bar and button to a horizontal layout
@@ -120,8 +117,8 @@ QChartView *Pollutantoverview::createChart() {
 }
 
 QTableWidget *Pollutantoverview::createComplianceTable() {
-    table = new QTableWidget(8, 3, this); // Adjust row count dynamically later
-    table->setHorizontalHeaderLabels({"Pollutant", "Level", "Status"});
+    table = new QTableWidget(8, 4, this); // Adjust row count dynamically later
+    table->setHorizontalHeaderLabels({"Pollutant", "Level", "Location", "Status"});
     table->horizontalHeader()->setStretchLastSection(true);
     table->verticalHeader()->setVisible(false);
 
@@ -137,8 +134,9 @@ QTableWidget *Pollutantoverview::createComplianceTable() {
 void Pollutantoverview::populateTable()
 {
     QStringList pollutants;
-    QList<double> levels;
+    QStringList levels;
     QStringList statuses;
+    QStringList locations;
     QStringList riskDescriptions;
 
     // Load in data from the backend
@@ -147,22 +145,12 @@ void Pollutantoverview::populateTable()
 
     for (int i = 0; i < numberOfSamples; i++) {
         WaterQualitySample sample = query[i];
-        double sampleResult = atof(sample.result.c_str());
-
-        // Debugging
-        //Log("Sample " + std::to_string(i) + " has date " + sampleDate + " and result " + std::to_string(sampleResult));
-
-        // If the sample result is bigger than max result then set max result to the sample result
-        //if(sampleResult > maximumResult)
-        //{
-        //    maximumResult = sampleResult;
-        //}
-
-        // Important part, add the data to the lists
+        QString resultStr = QString::fromStdString(sample.result);
         auto determinandLabel = sample.determinandLabel.c_str();
         auto level = atoi(sample.result.c_str());
         pollutants.append(determinandLabel);
-        levels.append(level);
+        locations.append(sample.samplingPointLabel.c_str());
+        levels.append(resultStr);
 
         statuses.append(SAMPLE_GetSafetyLevel(sample).c_str());
 
@@ -173,16 +161,19 @@ void Pollutantoverview::populateTable()
 
     for (int i = 0; i < pollutants.size(); ++i) {
         QTableWidgetItem *pollutantItem = new QTableWidgetItem(pollutants[i]);
-        QTableWidgetItem *levelItem = new QTableWidgetItem(QString::number(levels[i], 'f', 8));
+        QTableWidgetItem *levelItem = new QTableWidgetItem(levels[i]);
         QTableWidgetItem *statusItem = new QTableWidgetItem(statuses[i]);
+        QTableWidgetItem *locationItem = new QTableWidgetItem(locations[i]);
 
         pollutantItem->setToolTip(riskDescriptions[i]);
         levelItem->setToolTip(riskDescriptions[i]);
+        locationItem->setToolTip(locations[i]);
         statusItem->setToolTip("Status: " + statuses[i] + "\n" + riskDescriptions[i]);
 
         // Color-code statuses
         if (statuses[i] == "Safe") {
-            statusItem->setBackground(Qt::green);
+            //statusItem->setBackground(Qt::green);
+            statusItem->setBackground(QColor ("#008000"));
         } else if (statuses[i] == "Caution") {
             statusItem->setBackground(QColor("#FFBF00")); // Amber color
         } else {
@@ -191,7 +182,9 @@ void Pollutantoverview::populateTable()
 
         table->setItem(i, 0, pollutantItem);
         table->setItem(i, 1, levelItem);
-        table->setItem(i, 2, statusItem);
+        table->setItem(i, 2, locationItem);
+        table->setItem(i, 3, statusItem);
+
     }
 }
 

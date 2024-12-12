@@ -1,14 +1,13 @@
 #ifndef COMPLIANCEDASHBOARD_H
 #define COMPLIANCEDASHBOARD_H
 
-#include <QWidget>
 #include <QGridLayout>
 #include <QScrollArea>
 #include <QComboBox>
 #include <vector>
 #include <string>
 
-struct MockSample {
+struct Data {
     std::string location;
     std::string pollutant;
     std::string status;
@@ -26,23 +25,23 @@ protected:
 
 private slots:
     void applyFilters();
-    void showDetails(const MockSample &sample);
+    void showDetails(const Data &sample);
 
 // protected:
 //     void resizeEvent(QResizeEvent *event) override;
 
 private:
-    void displaySummaryCards(const std::vector<MockSample> &samples);
+    void displaySummaryCards(const std::vector<Data> &samples);
     int calculateColumns(); // Determine the number of columns dynamically
 
     QScrollArea *scrollArea;         // To make cards scrollable
     QWidget *scrollContent;          // Content widget inside the scroll area
     QGridLayout *cardContainer;      // Grid layout to hold the cards
-    QComboBox *locationFilter;
-    QComboBox *pollutantFilter;
-    QComboBox *statusFilter;
+    QComboBox *locationComboBox;
+    QComboBox *pollutantComboBox;
+    QComboBox *statusComboBox;
 
-    std::vector<MockSample> mockData;
+    std::vector<Data> mockData;
     int cardWidth;  // Dynamically adjustable card width
     int cardHeight; // Dynamically adjustable card height
 };

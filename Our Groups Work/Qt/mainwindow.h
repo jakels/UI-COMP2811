@@ -38,8 +38,8 @@ private:
     QHBoxLayout *createFilters();
     QScrollArea *createContent();
     QFrame *createCard(const QString &title, const QString &style);
-
-    void setupNavigation();
+    QWidget *createNavigationBar();
+    //void setupNavigation();
     void configureTabOrder();
 };
 
