@@ -15,9 +15,6 @@ FluorinatedPage::FluorinatedPage(QWidget *parent)
       filterDropdownLocation(new QComboBox()),
       filterDropdownCompliance(new QComboBox())
 {
-    /*std::vector<WaterQualitySample> samples = DB_GetEntriesByChemical("", "");
-    for (int i = 0; i < 1000; i++) {
-        WaterQualitySample current = samples[i];*/
 
 
     QWidget *centralWidget = new QWidget(this);
@@ -178,12 +175,12 @@ void FluorinatedPage::updateComplianceStatus()
 QWidget *FluorinatedPage::createSummaryCard(const QString &title, const QString &color)
 {
     QFrame *card = new QFrame();
-    card->setStyleSheet(QString("background-color: %1; border-radius: 50px; padding: 50px;").arg(color));
+    card->setStyleSheet(QString("background-color: %1; border-radius: 50px; padding: 10x;").arg(color));
     card->setFixedSize(400, 500);
 
     QVBoxLayout *cardContent = new QVBoxLayout(card);
     QLabel *titleLabel = new QLabel(title);
-    titleLabel->setStyleSheet("font-size: 16px; font-weight: bold; color: #fff;");
+    titleLabel->setStyleSheet("font-size: 14px; font-weight: bold; color: #fff;");
     titleLabel->setAlignment(Qt::AlignCenter);
 
     cardContent->addWidget(titleLabel);

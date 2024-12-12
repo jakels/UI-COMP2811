@@ -1,9 +1,8 @@
-#include <QMessageBox>
 #include "mainwindow.h"
 
 DashboardWindow::DashboardWindow(QWidget *parent)
     : QMainWindow(parent) {
-
+    // Inform the user that database loading might take a minute
     QMessageBox::information(this, "Welcome","The database will take a minute to load. Press OK to start.");
     DB_Initialise();
 
@@ -19,7 +18,7 @@ DashboardWindow::DashboardWindow(QWidget *parent)
     stackedWidget->addWidget(new FluorinatedPage(this));
     stackedWidget->addWidget(new ComplianceDashboard(this));
 
-    // Dynamically update the window title based on the current page
+    // Update the window title when switching pages
     connect(stackedWidget, &QStackedWidget::currentChanged, this, [=](int index) {
         switch (index) {
             case 0: setWindowTitle("Dashboard"); break;
@@ -35,7 +34,6 @@ DashboardWindow::DashboardWindow(QWidget *parent)
     mainLayout->addWidget(stackedWidget);
     centralWidget->setLayout(mainLayout);
 
-    //setupNavigation();
     createNavigationBar();
     configureTabOrder();
 }
@@ -44,6 +42,7 @@ QWidget *DashboardWindow::createDashboardPage() {
     QWidget *dashboardPage = new QWidget(this);
     QVBoxLayout *layout = new QVBoxLayout(dashboardPage);
 
+    // Add filters section and main content area
     layout->addLayout(createFilters());
     layout->addWidget(createContent(), 1);
     layout->addStretch();
@@ -107,6 +106,7 @@ QScrollArea *DashboardWindow::createContent() {
     QGridLayout *gridLayout = new QGridLayout(contentWidget);
     gridLayout->setSpacing(20);
 
+    // Titles of the overview cards
     QStringList cardTitles = {"Pollutant Overview", "POPs", "Fluorinated Compounds", "Compliance"};
     QString cardStyle = "QFrame {"
                         "  border: 1px solid #DEE2E6; border-radius: 10px; background-color: #F8F9FA; "
@@ -114,8 +114,8 @@ QScrollArea *DashboardWindow::createContent() {
                         "QFrame:hover {"
                         "  transform: scale(1.05); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); }";
 
+    // Add cards for each category
     const int columnCount = 2;
-
     for (int i = 0; i < cardTitles.size(); ++i) {
         QFrame *card = createCard(cardTitles[i], cardStyle);
         gridLayout->addWidget(card, i / columnCount, i % columnCount, Qt::AlignTop);
@@ -145,6 +145,7 @@ QFrame *DashboardWindow::createCard(const QString &title, const QString &style) 
     QLabel *titleLabel = new QLabel(title);
     titleLabel->setStyleSheet("font-size: 22px; font-weight: bold; color: #2c3e50; text-align: center;");
 
+    //  conditions to show relevant info per card
     QLabel *summaryLabel = new QLabel();
     if (title.toStdString() == "Pollutant Overview") {
         QString formattedText = QString(
@@ -156,6 +157,7 @@ QFrame *DashboardWindow::createCard(const QString &title, const QString &style) 
         ).arg(numberOfSafe).arg(numberOfCaution).arg(numberOfDanger);
         summaryLabel->setText(formattedText);
     }
+
     if(title.toStdString() == "Fluorinated Compounds")
     {
         std::string status = "<b style='color: green;'>Status:</b> <span style='color: green;'>Above compliance threshold</span><br>";
@@ -173,6 +175,7 @@ QFrame *DashboardWindow::createCard(const QString &title, const QString &style) 
         ).arg(numberOfSafeFluroEntries).arg(percentage).arg(status.c_str());
         summaryLabel->setText(formattedText);
     }
+
     if(title.toStdString() == "POPs")
     {
         std::string status = "<b style='color: green;'>Status:</b> <span style='color: green;'>Above compliance threshold</span><br>";
@@ -191,6 +194,7 @@ QFrame *DashboardWindow::createCard(const QString &title, const QString &style) 
         ).arg(numberOfPops).arg(percentage).arg(SAMPLES_NumberOfUnsafePops()).arg(status.c_str());
         summaryLabel->setText(formattedText);
     }
+
     if(title.toStdString() == "Compliance")
     {
         std::string status = "<b style='color: green;'>Status:</b> <span style='color: green;'>Above compliance threshold</span><br>";
@@ -225,13 +229,13 @@ QFrame *DashboardWindow::createCard(const QString &title, const QString &style) 
     // Connect the "View Details" button to the relevant page
     connect(detailsButton, &QPushButton::clicked, this, [this, title]() {
         if (title == "Pollutant Overview") {
-            stackedWidget->setCurrentIndex(1); // Navigate to Pollutant Overview page
+            stackedWidget->setCurrentIndex(1);
         } else if (title == "POPs") {
             stackedWidget->setCurrentIndex(2);
         } else if (title == "Fluorinated Compounds") {
             stackedWidget->setCurrentIndex(3);
         }else if (title == "Compliance") {
-            stackedWidget->setCurrentIndex(4); // Navigate to Compliance Overview page
+            stackedWidget->setCurrentIndex(4);
         }
     });
 
@@ -245,7 +249,7 @@ QFrame *DashboardWindow::createCard(const QString &title, const QString &style) 
 }
 
 QWidget *DashboardWindow::createNavigationBar() {
-    // Instead of creating two separate widgets, just create one navBar
+
     QWidget *navBar = new QWidget(this);
     QHBoxLayout *navLayout = new QHBoxLayout(navBar);
     navLayout->setContentsMargins(20, 20, 20, 20);
@@ -253,7 +257,7 @@ QWidget *DashboardWindow::createNavigationBar() {
     QLabel *appTitle = new QLabel("Water Quality Monitor");
     appTitle->setStyleSheet("font-size: 24px; font-weight: bold; color: #F1FAEE;");
 
-    // Create buttons
+    //  buttons
     QPushButton *dashboardButton = new QPushButton("Dashboard");
     QPushButton *pollutantOverviewButton = new QPushButton("Pollutant Overview");
     QPushButton *popsButton = new QPushButton("POPs");
@@ -296,7 +300,7 @@ QWidget *DashboardWindow::createNavigationBar() {
     languageSelector->setObjectName("LanguageSelector");
     languageSelector->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     languageSelector->setMinimumWidth(150);
-    languageSelector->setMinimumContentsLength(10); // adjusts width based on number of characters
+    languageSelector->setMinimumContentsLength(10);
 
     //Set Focus Policies
         dashboardButton->setFocusPolicy(Qt::StrongFocus);
@@ -317,7 +321,6 @@ QWidget *DashboardWindow::createNavigationBar() {
     navLayout->addWidget(languageSelector);
     navLayout->addStretch();
 
-    // Set the desired background color directly on navBar
     navBar->setStyleSheet(
         "background-color: #1D3557; "
         "border-bottom: 2px solid #A8DADC;"
@@ -379,6 +382,7 @@ QWidget *DashboardWindow::createNavigationBar() {
 }
 
 void DashboardWindow::configureTabOrder() {
+    // Set a logical tab order for the main interactive widgets
     QPushButton *dashboardButton = findChild<QPushButton *>("DashboardButton");
     QPushButton *pollutantOverviewButton = findChild<QPushButton *>("PollutantOverviewButton");
     QPushButton *popsButton = findChild<QPushButton *>("PopsButton");
@@ -401,36 +405,34 @@ void DashboardWindow::configureTabOrder() {
     }
 }
 
-
 void DashboardWindow::keyPressEvent(QKeyEvent *event) {
+    // Keyboard navigation
     switch (event->key()) {
         case Qt::Key_Left:
-            qDebug() << "Left arrow pressed - navigating backward";
-        focusPreviousChild(); // Navigate to the previous widget
+            focusPreviousChild();
         break;
         case Qt::Key_Right:
-            qDebug() << "Right arrow pressed - navigating forward";
-        focusNextChild(); // Navigate to the next widget
+            focusNextChild();
         break;
         case Qt::Key_Enter:
         case Qt::Key_Return:
-            qDebug() << "Enter or Return pressed";
         if (QPushButton *button = qobject_cast<QPushButton *>(QApplication::focusWidget())) {
-            button->click(); // Trigger focused button action
+            button->click();
         }
         break;
         case Qt::Key_Escape:
-            qDebug() << "Escape pressed - closing application";
-        close(); // Exit the application
+
+        close();
         break;
         default:
-            QMainWindow::keyPressEvent(event); // Default handling
+            QMainWindow::keyPressEvent(event);
     }
 }
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
+    // Highlight focused widget with a border
     qApp->setStyleSheet("QWidget:focus { border: 2px solid #3498db; outline: none; }");
 
     DashboardWindow window;

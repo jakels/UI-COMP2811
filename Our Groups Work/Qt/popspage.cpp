@@ -135,23 +135,7 @@ void PopsPage::loadPopData(const std::string &filter)
             tableWidget->setItem(row, 2, safeItem);
 
             // Set the color of the Safe column
-            safeItem->setBackground((safeStatus == "Safe") ? Qt::green : Qt::red);
-
-            // Add a button
-            /*QPushButton *detailsButton = new QPushButton("Details", tableWidget);
-            tableWidget->setCellWidget(row, 3, detailsButton);
-
-            // Connect the button click signal to the corresponding slot
-            connect(detailsButton, &QPushButton::clicked, this, [this, pollutant, sum, safeStatus]() {
-                QMessageBox::information(
-                        this,
-                        "Pollutant Details",
-                        QString("Pollutant: %1\nLevel: %2\nStatus: %3")
-                                .arg(QString::fromStdString(pollutant))
-                                .arg(QString::number(sum, 'f', 2))
-                                .arg(safeStatus)
-                );
-            });*/
+            safeItem->setBackground((safeStatus == "Safe") ? QBrush(QColor("#008000")) : QBrush(Qt::red));
 
             ++row;
         }

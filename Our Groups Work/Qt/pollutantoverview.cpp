@@ -19,6 +19,7 @@
 #include <QDateTime>
 #include <QToolTip>
 
+// Set a default chemical to show when the page loads
 std::string targetChemical = "Endrin";
 
 Pollutantoverview::Pollutantoverview(QWidget *parent)
@@ -41,12 +42,12 @@ Pollutantoverview::Pollutantoverview(QWidget *parent)
 );
     connect(searchButton, &QPushButton::clicked, this, &Pollutantoverview::handleSearch);
 
-    // Add search bar and button to a horizontal layout
+
     QHBoxLayout *searchLayout = new QHBoxLayout();
     searchLayout->addWidget(searchBar);
     searchLayout->addWidget(searchButton);
 
-    // Add components to layout
+    // Add components to main page
     layout->addLayout(searchLayout);
     layout->addWidget(createChart());
     layout->addWidget(createComplianceTable());
@@ -59,15 +60,15 @@ QValueAxis *axisY;
 QChartView *Pollutantoverview::createChart() {
     QChart *chart = new QChart();
 
-    // Create sample data seriesFluro
+    // Create line series chart to present pollutant over time
     series = new QLineSeries();
 
-    // Load in data from the backend, get all the samples that had the chemical
+    // Get data from the database
     std::vector<WaterQualitySample> query = OrderSamplesByDate(DB_GetEntriesByChemical(targetChemical));
     int numberOfSamples = query.size();
     double maximumResult = 0;
 
-    // Loop through the samples
+    // Loop through the data
     for (int i = 0; i < numberOfSamples; i++) {
         WaterQualitySample sample = query[i];
         auto sampleDate = sample.sampleDateTime.c_str();
@@ -99,14 +100,16 @@ QChartView *Pollutantoverview::createChart() {
 
     chart->setTitle("Determinand Trends Over Time");
 
-    // Connect hovered signal
+    // Show tooltips when hovering over chart data points
     connect(series, &QLineSeries::hovered, this, &Pollutantoverview::showChartDataTooltip);
 
     return new QChartView(chart);
 }
 
 QTableWidget *Pollutantoverview::createComplianceTable() {
-    table = new QTableWidget(8, 4, this); // Adjust row count dynamically later
+
+    // Create a table to show pollutant data (Determinand, Level, Location, Status)
+    table = new QTableWidget(8, 4, this);
     table->setHorizontalHeaderLabels({"Determinand", "Level", "Location", "Status"});
     table->horizontalHeader()->setStretchLastSection(true);
     table->verticalHeader()->setVisible(false);
@@ -114,7 +117,7 @@ QTableWidget *Pollutantoverview::createComplianceTable() {
     // Populate the table
     populateTable();
 
-    // Connect table click signal
+    // Show details when a user clicks on a row in the table
     connect(table, &QTableWidget::cellClicked, this, &Pollutantoverview::showPollutantDetails);
 
     return table;
@@ -141,6 +144,7 @@ void Pollutantoverview::populateTable()
         locations.append(sample.samplingPointLabel.c_str());
         levels.append(resultStr);
 
+        // Get status (Safe, Caution, Danger)
         statuses.append(SAMPLE_GetSafetyLevel(sample).c_str());
 
         riskDescriptions.append("?");
@@ -159,12 +163,11 @@ void Pollutantoverview::populateTable()
         locationItem->setToolTip(locations[i]);
         statusItem->setToolTip("Status: " + statuses[i] + "\n" + riskDescriptions[i]);
 
-        // Color-code statuses
+        // Color the status background based on the level of safety
         if (statuses[i] == "Safe") {
-            //statusItem->setBackground(Qt::green);
             statusItem->setBackground(QColor ("#008000"));
         } else if (statuses[i] == "Caution") {
-            statusItem->setBackground(QColor("#FFBF00")); // Amber color
+            statusItem->setBackground(QColor("#FFBF00"));
         } else {
             statusItem->setBackground(Qt::red);
         }
@@ -178,9 +181,11 @@ void Pollutantoverview::populateTable()
 }
 
 void Pollutantoverview::handleSearch() {
+
     QString query = searchBar->text().toLower().trimmed();
     qDebug() << "Search triggered for:" << query;
 
+    // Filter table rows by the text entered in the search bar
     for (int row = 0; row < table->rowCount(); ++row) {
         bool match = false;
         for (int col = 0; col < table->columnCount(); ++col) {
@@ -195,6 +200,7 @@ void Pollutantoverview::handleSearch() {
 }
 
 void Pollutantoverview::showPollutantDetails(int row, int column) {
+
     QString pollutant = table->item(row, 0)->text();
     QString level = table->item(row, 1)->text();
     QString status = table->item(row, 2)->text();
@@ -214,7 +220,7 @@ void Pollutantoverview::showPollutantDetails(int row, int column) {
     // Update chart data dynamically
     updateChartData(pollutant.toStdString());
 
-    // Check for data existence and avoid out-of-bounds issues
+    // Check for data existence
     std::string determinandDefinition;
     auto chemicalEntries = DB_GetEntriesByChemical(pollutant.toStdString());
     if (!chemicalEntries.empty()) {
@@ -249,6 +255,7 @@ void Pollutantoverview::showChartDataTooltip(const QPointF &point, bool state) {
 }
 
 void Pollutantoverview::updateChartData(std::string chemName) {
+
     // Clear old data
     series->clear();
 

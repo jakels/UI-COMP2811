@@ -36,7 +36,6 @@ set(PROJECT_SOURCES
         DatasetInterface.h
         csv.hpp
         sqlite3.c
-        datavisualizationpage.cpp
         pollutantoverview.cpp
         fluorinatedpage.cpp
         Utils.cpp
