@@ -78,6 +78,7 @@ void PopsPage::loadPopData(const std::string &filter)
 
         // Define the fields to be filtered
         std::vector<std::string> filters = {};
+
         for(auto popType : popPollutants)
         {
             filters.push_back(popType.toStdString());
@@ -168,7 +169,7 @@ void PopsPage::loadPopData(const std::string &filter)
             }
         }
 
-        updateChart(OrderSamplesByDate(filteredSamples));
+        updateChart(OrderSamplesByDate(DB_GetEntriesByChemical(filter)));
 
     } catch (const std::exception &e) {
         QMessageBox::critical(this, "Error", QString("Failed to load data: %1").arg(e.what()));

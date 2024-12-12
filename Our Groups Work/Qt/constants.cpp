@@ -13,7 +13,6 @@ QStringList fluroPollutantTypes = {
 };
 
 QStringList popPollutants = {
-        "Heptachlor",
         "Aldrin",
         "DDT (PP)",
         "DDT (OP')",

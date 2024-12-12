@@ -98,14 +98,16 @@ QChartView *Pollutantoverview::createChart() {
     series->attachAxis(axisY);
 
     // Add safe threshold as a reference line
-    QLineSeries *threshold = new QLineSeries();
+    //QLineSeries *threshold = new QLineSeries();
+    //threshold->append(0, 20);
+    //threshold->append(4, 20);
+    //threshold->setName("Safe Threshold");
 
+    //chart->addSeries(threshold);
+    //threshold->attachAxis(axisX);
+    //threshold->attachAxis(axisY);
 
-    chart->addSeries(threshold);
-    threshold->attachAxis(axisX);
-    threshold->attachAxis(axisY);
-
-    chart->setTitle("Pollutant Trends Over Time");
+    chart->setTitle("Determinand Trends Over Time");
 
     // Connect hovered signal
     connect(series, &QLineSeries::hovered, this, &Pollutantoverview::showChartDataTooltip);
@@ -115,7 +117,7 @@ QChartView *Pollutantoverview::createChart() {
 
 QTableWidget *Pollutantoverview::createComplianceTable() {
     table = new QTableWidget(8, 4, this); // Adjust row count dynamically later
-    table->setHorizontalHeaderLabels({"Pollutant", "Level", "Location", "Status"});
+    table->setHorizontalHeaderLabels({"Determinand", "Level", "Location", "Status"});
     table->horizontalHeader()->setStretchLastSection(true);
     table->verticalHeader()->setVisible(false);
 

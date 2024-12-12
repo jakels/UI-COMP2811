@@ -114,8 +114,8 @@ std::vector<WaterQualitySample> DB_GetAllEntries(const std::string& filePath)
         sample.samplingPointNorthing = row["sample.samplingPoint.northing"].get<>();
         sample.headers = reader.get_col_names();
         sample.rawRow = row;
-        sample.safeMax = 0.005;
-        sample.cautionMax = 0.02;
+        sample.safeMax = 0.08;
+        sample.cautionMax = 0.9;
 
         if(!(std::find(uniqueChemicals.begin(), uniqueChemicals.end(), sample.determinandLabel) != uniqueChemicals.end()))
         {

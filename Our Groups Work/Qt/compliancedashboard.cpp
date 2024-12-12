@@ -29,11 +29,11 @@ ComplianceDashboard::ComplianceDashboard(QWidget *parent)
     locationComboBox->setMinimumWidth(150);
     locationComboBox->setMinimumContentsLength(10);
 
-    QLabel *pollutantLabel = new QLabel("Pollutant:");
+    QLabel *pollutantLabel = new QLabel("Determinand :");
     pollutantLabel->setStyleSheet("font-size: 16px; font-weight: bold; color: #1D3557;");
     pollutantComboBox = new QComboBox();
     pollutantComboBox->setStyleSheet("padding: 8px; font-size: 14px; border: 1px solid #457B9D; border-radius: 5px; color: #333;");
-    pollutantComboBox->addItem("Any Pollutant");
+    pollutantComboBox->addItem("Any Determinand");
     pollutantComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     pollutantComboBox->setMinimumWidth(150);
     pollutantComboBox->setMinimumContentsLength(10);
@@ -226,7 +226,7 @@ void ComplianceDashboard::applyFilters()
     QString selectedStatus = statusComboBox->currentText();
 
     // Validate if both are set to "Any", show dataset too large message
-    if (selectedLocation == "Any Location" && selectedPollutant == "Any Pollutant") {
+    if (selectedLocation == "Any Location" && selectedPollutant == "Any Determinand") {
         QMessageBox::information(this, "Dataset too large", "Please refine your search.");
         return;
     }
@@ -234,11 +234,11 @@ void ComplianceDashboard::applyFilters()
     std::vector<WaterQualitySample> waterSamples;
 
     // Determine which database query to run based on filters
-    if (selectedLocation != "Any Location" && selectedPollutant != "Any Pollutant") {
+    if (selectedLocation != "Any Location" && selectedPollutant != "Any Determinand") {
         waterSamples = DB_GetEntriesByChemicalAndLocation(selectedPollutant.toStdString(), selectedLocation.toStdString());
-    } else if (selectedLocation == "Any Location" && selectedPollutant != "Any Pollutant") {
+    } else if (selectedLocation == "Any Location" && selectedPollutant != "Any Determinand") {
         waterSamples = DB_GetEntriesByChemical(selectedPollutant.toStdString());
-    } else if (selectedLocation != "Any Location" && selectedPollutant == "Any Pollutant") {
+    } else if (selectedLocation != "Any Location" && selectedPollutant == "Any Determinand") {
         waterSamples = DB_GetEntriesByLocation(selectedLocation.toStdString());
     }
 
