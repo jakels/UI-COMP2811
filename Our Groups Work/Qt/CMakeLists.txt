@@ -67,7 +67,7 @@ endif()
 
 # Link Qt Widgets and Charts libraries
 target_link_libraries(dash PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Charts)
-configure_file(${CMAKE_SOURCE_DIR}/Water.csv ${CMAKE_BINARY_DIR}/Water.csv COPYONLY)
+#configure_file(${CMAKE_SOURCE_DIR}/Water.csv ${CMAKE_BINARY_DIR}/Water.csv COPYONLY)
 
 # Set bundle properties for macOS and other platforms
 if(${QT_VERSION} VERSION_LESS 6.1.0)
