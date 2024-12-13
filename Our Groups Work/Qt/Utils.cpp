@@ -9,7 +9,6 @@
 #include <iostream>
 #include <chrono>
 #include <ctime>
-#include "sqlite3.h"
 #include "Utils.h"
 #include <filesystem>
 
@@ -34,31 +33,3 @@ std::string GetAbsoloutePathFromRelative(const std::string &relativePath) {
         return "";
     }
 }
-
-
-class StringList {
-    private:
-        std::vector<std::string> list;
-
-    public:
-        // Function to check if a string is in the list
-        bool contains(const std::string& str) const {
-            return std::find(list.begin(), list.end(), str) != list.end();
-        }
-
-        // Function to add a string to the list
-        void add(const std::string& str) {
-            if (!contains(str)) { // Only add if the string is not already in the list
-                list.push_back(str);
-            } else {
-                std::cout << "String \"" << str << "\" is already in the list.\n";
-            }
-        }
-
-        // Function to print all strings in the list
-        void print() const {
-            for (const auto& str : list) {
-                std::cout << str << "\n";
-            }
-        }
-};

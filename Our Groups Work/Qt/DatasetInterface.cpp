@@ -11,7 +11,6 @@
 #include <iostream>
 #include <chrono>
 #include <ctime>
-#include "sqlite3.h"
 #include "Utils.h"
 #include <cmath>
 #include "fluorinatedpage.h"
