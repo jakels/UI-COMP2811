@@ -178,7 +178,7 @@ QFrame *DashboardWindow::createCard(const QString &title, const QString &style) 
         ).arg(numberOfSafeFluroEntries).arg(percentage).arg(status.c_str());
         summaryLabel->setText(formattedText);
     }
-    if(title == t("POPs"))
+    if(title.toStdString() == t("POPs"))
     {
         std::string status = "<b style='color: green;'>" + std::string(t("Status:").c_str()) + "</b> <span style='color: green;'>" + t("Above compliance threshold").c_str() + "</span><br>";
         double percentage = 100 - (((double)SAMPLES_NumberOfUnsafePops()/(double)std::max(numberOfPops, 1)) * (double)100);

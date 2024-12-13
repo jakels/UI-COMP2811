@@ -168,7 +168,9 @@ QStringList translations = {
     "Pollutant: %1\nLevel: %2\nStatus: %3|ملوث: %1\nالمستوى: %2\nالحالة: %3|Schadstoff: %1\nStufe: %2\nStatus: %3",
     "Filters applied: Time -|تم تطبيق الفلاتر: الوقت -|Filter angewendet: Zeit -",
     ", Region -|، المنطقة -|, Region -",
-    "Compliance|امتثال|Einhaltung"
+    "Compliance|امتثال|Einhaltung",
+    "No data matches the selected filters.|لا توجد بيانات تطابق الفلاتر المحددة.|Keine Daten entsprechen den ausgewählten Filtern.",
+    "No data found for the request.|لم يتم العثور على بيانات للطلب.|Keine Daten für die Anfrage gefunden."
 };
 
 std::string language = "English";
